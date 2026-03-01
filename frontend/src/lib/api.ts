@@ -20,7 +20,7 @@ async function _get<T>(path: string): Promise<T> {
   return data as T;
 }
 
-export async function startAuth(url: string): Promise<{ status: string; message: string }> {
+export async function startAuth(url: string): Promise<{ status: string; message: string; profile_id: string }> {
   return _post('/auth', { url });
 }
 
@@ -36,8 +36,8 @@ export async function planTasks(url: string, prompt: string): Promise<TaskPlan> 
   return _post('/plan', { url, prompt });
 }
 
-export async function verifyTasks(url: string, tasks: Task[]): Promise<{ profile_id: string; verified_tasks: VerifiedTask[] }> {
-  return _post('/verify', { url, tasks });
+export async function verifyTasks(url: string, tasks: Task[], profileId: string): Promise<{ profile_id: string; verified_tasks: VerifiedTask[] }> {
+  return _post('/verify', { url, tasks, profile_id: profileId });
 }
 
 export async function generateUI(

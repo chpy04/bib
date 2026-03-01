@@ -1,5 +1,4 @@
 import logging
-import uuid
 
 from fastapi import APIRouter, HTTPException
 
@@ -34,13 +33,13 @@ async def plan(req: PlanTasksRequest) -> TaskPlan:
 @router.post("/verify", response_model=VerifyTasksResponse)
 async def verify(req: VerifyTasksRequest) -> VerifyTasksResponse:
     """Run Browser Use agents in parallel to verify tasks and write results to registry."""
+    profile_id = req.profile_id
+
     try:
-        verified = await agent_verify_tasks(req.tasks, req.url)
+        verified = await agent_verify_tasks(req.tasks, req.url, profile_id)
     except Exception as e:
         logger.exception("Task verification failed")
         raise HTTPException(status_code=502, detail=f"Verification failed: {e}")
-
-    profile_id = str(uuid.uuid4())
 
     for task in verified:
         save_instruction(

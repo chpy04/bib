@@ -20,6 +20,7 @@ export function SetupPanel({ onComplete }: SetupPanelProps) {
   const [statusMsg, setStatusMsg] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [profileId, setProfileId] = useState('')
 
   async function handleAuth(e: React.FormEvent) {
     e.preventDefault()
@@ -28,7 +29,8 @@ export function SetupPanel({ onComplete }: SetupPanelProps) {
     setLoading(true)
     setStatusMsg('Opening browser…')
     try {
-      await api.startAuth(url.trim())
+      const result = await api.startAuth(url.trim())
+      setProfileId(result.profile_id)
       setStep('prompt')
       setPhase('prompt')
       setStatusMsg('')
@@ -54,9 +56,8 @@ export function SetupPanel({ onComplete }: SetupPanelProps) {
       // Step 2: Verify
       setPhase('verifying')
       setStatusMsg(`Verifying ${plan.tasks.length} task(s) with browser agent…`)
-      const verifyResult = await api.verifyTasks(url.trim(), plan.tasks)
+      const verifyResult = await api.verifyTasks(url.trim(), plan.tasks, profileId)
       const verifiedTasks = verifyResult.verified_tasks
-      const profileId = verifyResult.profile_id
 
       if (verifiedTasks.length === 0) {
         throw new Error('No tasks could be verified. Try a more specific prompt.')
