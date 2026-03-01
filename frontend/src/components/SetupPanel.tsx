@@ -1,6 +1,21 @@
 import { useState } from "react";
 import * as api from "@/lib/api";
+import { AgentLoader } from "@/components/agent-loader";
 import type { TaskPlan, VerifiedTask } from "@/types";
+
+const DATA_PHASES = [
+  "Analyzing your request...",
+  "Planning extraction tasks...",
+  "Connecting to browser...",
+  "Verifying tasks on site...",
+  "Extracting sample data...",
+];
+
+const UI_PHASES = [
+  "Reading verified tasks...",
+  "Designing layout...",
+  "Generating React component...",
+];
 
 interface SetupPanelProps {
   onComplete: (
@@ -12,25 +27,25 @@ interface SetupPanelProps {
 }
 
 export function SetupPanel({ onComplete }: SetupPanelProps) {
-  const [step, setStep] = useState<"url" | "prompt">("url");
+  const [step, setStep] = useState<"url" | "data" | "ui">("url");
   const [url, setUrl] = useState("");
-  const [prompt, setPrompt] = useState("");
-  const [statusMsg, setStatusMsg] = useState("");
+  const [dataPrompt, setDataPrompt] = useState("");
+  const [uiPrompt, setUiPrompt] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [profileId, setProfileId] = useState("");
+  const [verifiedTasks, setVerifiedTasks] = useState<VerifiedTask[]>([]);
+  const [loaderPhase, setLoaderPhase] = useState(0);
 
   async function handleAuth(e: React.FormEvent) {
     e.preventDefault();
     if (!url.trim()) return;
     setError(null);
     setLoading(true);
-    setStatusMsg("Opening browser…");
     try {
       const { profile_id } = await api.startAuth(url.trim());
       setProfileId(profile_id);
-      setStep("prompt");
-      setStatusMsg("");
+      setStep("data");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to open browser");
     } finally {
@@ -38,24 +53,29 @@ export function SetupPanel({ onComplete }: SetupPanelProps) {
     }
   }
 
-  async function handlePrompt(e: React.FormEvent) {
+  async function handleDataPrompt(e: React.FormEvent) {
     e.preventDefault();
-    if (!prompt.trim()) return;
+    if (!dataPrompt.trim()) return;
     setError(null);
     setLoading(true);
+    setLoaderPhase(0);
 
     try {
-      setStatusMsg("Planning tasks…");
-      const plan: TaskPlan = await api.planTasks(url.trim(), prompt.trim());
+      setLoaderPhase(1);
+      const plan: TaskPlan = await api.planTasks(url.trim(), dataPrompt.trim());
 
-      setStatusMsg(
-        `Verifying ${plan.tasks.length} task(s) with browser agent…`,
-      );
+      setLoaderPhase(2);
+      // Small delay so the user sees the phase transition
+      await new Promise((r) => setTimeout(r, 300));
+
+      setLoaderPhase(3);
       const { profile_id, verified_tasks: tasks } = await api.verifyTasks(
         url.trim(),
         plan.tasks,
         profileId,
       );
+
+      setLoaderPhase(4);
 
       if (tasks.length === 0) {
         throw new Error(
@@ -63,21 +83,41 @@ export function SetupPanel({ onComplete }: SetupPanelProps) {
         );
       }
 
-      setStatusMsg("Generating dashboard UI…");
-      const { component_code } = await api.generateUI(
-        tasks,
-        plan.layout_hint,
-        profile_id,
-        url.trim(),
-        prompt.trim(),
-      );
-
-      onComplete(component_code, tasks, plan.layout_hint, profile_id);
+      setProfileId(profile_id);
+      setVerifiedTasks(tasks);
+      setStep("ui");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setLoading(false);
-      setStatusMsg("");
+      setLoaderPhase(0);
+    }
+  }
+
+  async function handleUIPrompt(e: React.FormEvent) {
+    e.preventDefault();
+    if (!uiPrompt.trim()) return;
+    setError(null);
+    setLoading(true);
+    setLoaderPhase(0);
+
+    try {
+      setLoaderPhase(1);
+      const { component_code } = await api.generateUI(
+        verifiedTasks,
+        uiPrompt.trim(),
+        profileId,
+        url.trim(),
+        dataPrompt.trim(),
+      );
+
+      setLoaderPhase(2);
+      onComplete(component_code, verifiedTasks, uiPrompt.trim(), profileId);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setLoading(false);
+      setLoaderPhase(0);
     }
   }
 
@@ -130,38 +170,88 @@ export function SetupPanel({ onComplete }: SetupPanelProps) {
           disabled={loading || !url.trim()}
           className="w-full rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition hover:bg-accent/90 disabled:opacity-50 disabled:pointer-events-none"
         >
-          {loading
-            ? statusMsg || "Opening browser…"
-            : "Open browser to log in →"}
+          {loading ? "Opening browser…" : "Open browser to log in →"}
         </button>
       </form>
     );
   }
 
+  if (step === "data") {
+    if (loading) {
+      return <AgentLoader phases={DATA_PHASES} currentPhase={loaderPhase} />;
+    }
+
+    return (
+      <form onSubmit={handleDataPrompt} className="space-y-4">
+        <div className="rounded-lg border border-green-500/30 bg-green-500/5 px-4 py-3">
+          <p className="text-sm font-medium text-green-700 dark:text-green-400">
+            Browser opened at {url}
+          </p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Log in if needed — the agent will use your session automatically.
+          </p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-1.5">
+            What data do you want to extract?
+          </label>
+          <textarea
+            value={dataPrompt}
+            onChange={(e) => setDataPrompt(e.target.value)}
+            placeholder="Show me my open pull requests and top repositories…"
+            rows={4}
+            required
+            autoFocus
+            className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20 resize-none"
+          />
+        </div>
+
+        {error && (
+          <p className="rounded-lg bg-destructive/10 px-4 py-2.5 text-sm text-destructive">
+            {error}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          disabled={!dataPrompt.trim()}
+          className="w-full rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition hover:bg-accent/90 disabled:opacity-50 disabled:pointer-events-none"
+        >
+          Plan & verify data →
+        </button>
+      </form>
+    );
+  }
+
+  // step === "ui"
+  if (loading) {
+    return <AgentLoader phases={UI_PHASES} currentPhase={loaderPhase} />;
+  }
+
   return (
-    <form onSubmit={handlePrompt} className="space-y-4">
+    <form onSubmit={handleUIPrompt} className="space-y-4">
       <div className="rounded-lg border border-green-500/30 bg-green-500/5 px-4 py-3">
         <p className="text-sm font-medium text-green-700 dark:text-green-400">
-          Browser opened at {url}
+          {verifiedTasks.length} task(s) verified
         </p>
         <p className="text-xs text-muted-foreground mt-0.5">
-          Log in if needed — the agent will use your session automatically.
+          Now describe how the dashboard should look.
         </p>
       </div>
 
       <div>
         <label className="block text-sm font-medium text-foreground mb-1.5">
-          What do you want to see?
+          How should the dashboard look?
         </label>
         <textarea
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Show me my open pull requests and top repositories…"
+          value={uiPrompt}
+          onChange={(e) => setUiPrompt(e.target.value)}
+          placeholder="Two-column layout with cards for repos and a table for PRs…"
           rows={4}
           required
           autoFocus
-          disabled={loading}
-          className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20 resize-none disabled:opacity-60"
+          className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20 resize-none"
         />
       </div>
 
@@ -171,21 +261,12 @@ export function SetupPanel({ onComplete }: SetupPanelProps) {
         </p>
       )}
 
-      {loading && statusMsg && (
-        <div className="rounded-lg border border-border bg-card/50 px-4 py-3 space-y-2">
-          <p className="text-sm text-muted-foreground">{statusMsg}</p>
-          <div className="h-1 w-full overflow-hidden rounded-full bg-border">
-            <div className="h-full w-2/3 rounded-full bg-accent animate-pulse" />
-          </div>
-        </div>
-      )}
-
       <button
         type="submit"
-        disabled={loading || !prompt.trim()}
+        disabled={!uiPrompt.trim()}
         className="w-full rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition hover:bg-accent/90 disabled:opacity-50 disabled:pointer-events-none"
       >
-        {loading ? "Working…" : "Create profile →"}
+        Generate dashboard →
       </button>
     </form>
   );

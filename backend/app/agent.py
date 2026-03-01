@@ -50,7 +50,7 @@ async def _make_browser(profile_id: str) -> Browser:
             logger.debug("Could not export auth state: %s", e)
 
     storage_state = str(state_path) if state_path.exists() else None
-    return Browser(headless=False, storage_state=storage_state)
+    return Browser(headless=True, storage_state=storage_state)
 
 
 def _format_instructions(history) -> str:

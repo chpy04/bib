@@ -1,7 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { IFRAME_SHELL } from "@/lib/iframe-shell";
+import { AgentLoader } from "@/components/agent-loader";
 import * as api from "@/lib/api";
 import type { VerifiedTask } from "@/types";
+
+const REFINE_PHASES = [
+  "Reading current component...",
+  "Applying changes...",
+  "Generating updated component...",
+];
 
 interface GeneratedUIProps {
   componentCode: string;
@@ -23,12 +30,13 @@ export function GeneratedUI({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const shellWrittenRef = useRef(false);
   const [shellReady, setShellReady] = useState(false);
-  const [iframeHeight, setIframeHeight] = useState(400);
+  const [iframeHeight, setIframeHeight] = useState(window.innerHeight - 200);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [refinement, setRefinement] = useState("");
   const [refining, setRefining] = useState(false);
   const [refineError, setRefineError] = useState<string | null>(null);
+  const [refinePhase, setRefinePhase] = useState(0);
 
   // Write the shell HTML into the iframe once on mount
   useEffect(() => {
@@ -157,8 +165,10 @@ export function GeneratedUI({
 
     setRefining(true);
     setRefineError(null);
+    setRefinePhase(0);
 
     try {
+      setRefinePhase(1);
       const { component_code } = await api.refineUI(
         verifiedTasks,
         layoutHint,
@@ -167,12 +177,14 @@ export function GeneratedUI({
         message,
         profileId,
       );
+      setRefinePhase(2);
       setRefinement("");
       onCodeUpdate(component_code, message);
     } catch (err) {
       setRefineError(err instanceof Error ? err.message : "Refinement failed");
     } finally {
       setRefining(false);
+      setRefinePhase(0);
     }
   }
 
@@ -191,7 +203,7 @@ export function GeneratedUI({
       <iframe
         ref={iframeRef}
         title="Generated dashboard"
-        style={{ height: `${iframeHeight}px` }}
+        style={{ height: `${iframeHeight}px`, minHeight: 'calc(100vh - 200px)' }}
         className="w-full rounded-xl border border-border bg-white transition-all duration-200"
         sandbox="allow-scripts allow-same-origin"
       />
@@ -199,25 +211,32 @@ export function GeneratedUI({
         <p className="mt-2 text-xs text-destructive">{fetchError}</p>
       )}
 
-      <form onSubmit={handleRefine} className="mt-4 flex gap-2">
-        <input
-          type="text"
-          value={refinement}
-          onChange={(e) => setRefinement(e.target.value)}
-          placeholder="Request changes to the UI..."
-          disabled={refining}
-          className="flex-1 rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:opacity-60"
-        />
-        <button
-          type="submit"
-          disabled={refining || !refinement.trim()}
-          className="rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition hover:bg-accent/90 disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
-        >
-          {refining ? "Refining..." : "Refine"}
-        </button>
-      </form>
-      {refineError && (
-        <p className="mt-2 text-xs text-destructive">{refineError}</p>
+      {refining ? (
+        <div className="mt-4">
+          <AgentLoader phases={REFINE_PHASES} currentPhase={refinePhase} />
+        </div>
+      ) : (
+        <>
+          <form onSubmit={handleRefine} className="mt-4 flex gap-2">
+            <input
+              type="text"
+              value={refinement}
+              onChange={(e) => setRefinement(e.target.value)}
+              placeholder="Request changes to the UI..."
+              className="flex-1 rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+            />
+            <button
+              type="submit"
+              disabled={!refinement.trim()}
+              className="rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition hover:bg-accent/90 disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
+            >
+              Refine
+            </button>
+          </form>
+          {refineError && (
+            <p className="mt-2 text-xs text-destructive">{refineError}</p>
+          )}
+        </>
       )}
     </div>
   );

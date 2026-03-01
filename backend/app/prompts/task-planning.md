@@ -21,8 +21,7 @@ Return ONLY a JSON object with this exact structure — no explanation, no markd
       "display_hint": "card_list",
       "type": "data"
     }
-  ],
-  "layout_hint": "Brief description of the suggested overall layout"
+  ]
 }
 
 Rules:
