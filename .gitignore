@@ -18,3 +18,7 @@ dist/
 # BiB
 backend/profiles/*/
 !backend/profiles/.gitkeep
+
+# Auth
+auth.json
+*.bak
