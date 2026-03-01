@@ -4,10 +4,26 @@ import logging
 from fastapi import APIRouter, HTTPException, Query
 
 from app.agent import run_instruction
-from app.registry import get_instruction, list_instructions
+from app.registry import get_instruction, list_dashboards, list_instructions, load_dashboard
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+
+@router.get("/dashboards")
+async def dashboards():
+    """List all saved dashboards."""
+    return list_dashboards()
+
+
+@router.get("/dashboards/{profile_id}")
+async def dashboard_detail(profile_id: str):
+    """Load a saved dashboard by profile_id."""
+    data = load_dashboard(profile_id)
+    if data is None:
+        raise HTTPException(status_code=404, detail="Dashboard not found")
+    data["profile_id"] = profile_id
+    return data
 
 
 @router.get("/instructions")
