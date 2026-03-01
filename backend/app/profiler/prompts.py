@@ -48,10 +48,10 @@ Rules:
 extracted_data_json — Serialize your extracted data to a JSON string first, then put the string here.
   CORRECT:   "extracted_data_json": "[{{\\"title\\": \\"Story 1\\", \\"score\\": 100}}]"
   INCORRECT: "extracted_data_json": [{{"title": "Story 1", "score": 100}}]
-  Limit to 20 records maximum to keep output short.
+  Limit to 5 records maximum — the output must stay short to avoid truncation.
 
-agent_prompt_used — Step-by-step plain English instructions for repeating this task.
-  Example: "1. Navigate to URL. 2. Locate the list. 3. Extract title and score for each row."
+agent_prompt_used — ONE sentence describing how to repeat this task (keep it brief).
+  Example: "Navigate to URL and extract title, score, and URL for each item in the list."
 
 suggested_fields — Map ONLY the actual data field names to their types.
   Allowed types: "string", "integer", "number", "boolean"

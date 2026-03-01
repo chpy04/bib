@@ -128,17 +128,139 @@
   "extract_top_news_and_comments": {
     "name": "extract_top_news_and_comments",
     "profile_id": "926f2c9e-8f4e-4c0d-952c-b8ef84b3ef2a",
-    "description": "Extract the list of top news stories along with their titles, URLs, and comment counts from the homepage.",
-    "instructions": "1. Navigate to URL. 2. Locate the list of top news stories. 3. Extract title, score (points), URL, and comment count for each story.",
+    "description": "Extract the list of top news stories along with their titles and comment counts from the homepage.",
+    "instructions": "Navigate to URL and extract title, score, URL, and comments for each item in the list.",
     "output_schema": [
       {
         "title": "string",
         "score": "integer",
         "url": "string",
-        "comments": "integer or null if not available."
+        "comments": "integer"
       }
     ],
-    "sample_data": "[{\"title\": \"Microgpt\", \"score\": 468, \"url\": \"http://karpathy.github.io/2026/02/12/microgpt/\", \"comments\": 85}, {\"title\": \"We do not think Anthropic should be designated as a supply chain risk\", \"score\": 438, \"url\": \"https://twitter.com/OpenAI/status/2027846016423321831\", \"comments\": 191}, {\"title\": \"The Windows 95 user interface: A case study in usability engineering (1996)\", \"score\": 213, \"url\": \"https://dl.acm.org/doi/fullHtml/10.1145/238386.238611\", \"comments\": 127}, {\"title\": \"SQL vs. NoSQL: How to Answer This Interview Question in 2026\", \"score\": 13, \"url\": \"https://www.thetrueengineer.com/p/sql-vs-nosql-how-to-answer-this-interview\", \"comments\": null}, {\"title\": \"Obsidian Sync now has a headless client\", \"score\": 441, \"url\": \"https://help.obsidian.md/sync/headless\", \"comments\": 152}, {\"title\": \"The happiest I've ever been...",
+    "sample_data": [
+      {
+        "title": "Microgpt",
+        "score": 492,
+        "url": "karpathy.github.io",
+        "comments": 84
+      },
+      {
+        "title": "We do not think Anthropic should be designated as a supply chain risk",
+        "score": 445,
+        "url": "twitter.com/openai",
+        "comments": 199
+      },
+      {
+        "title": "The Windows 95 user interface: A case study in usability engineering (1996)",
+        "score": 218,
+        "url": "acm.org",
+        "comments": 127
+      },
+      {
+        "title": "Obsidian Sync now has a headless client",
+        "score": 445,
+        "url": "help.obsidian.md",
+        "comments": 152
+      },
+      {
+        "title": "The happiest I've ever been",
+        "score": 423,
+        "url": "ben-mini.com",
+        "comments": 214
+      }
+    ],
+    "display_hint": "card_list",
+    "type": "data"
+  },
+  "extract_community_highlights_and_comment_counts": {
+    "name": "extract_community_highlights_and_comment_counts",
+    "profile_id": "7c4add5b-6f9f-4a35-8f72-b3da5f068570",
+    "description": "Extract the community highlights and the comment counts for each post on the /r/programming subreddit page. This includes reading the titles of the highlighted posts and their corresponding comment counts.",
+    "instructions": "Navigate to URL and extract title, score, and URL for each item in the list.",
+    "output_schema": [
+      {
+        "title": "string",
+        "score": "integer",
+        "url": "string"
+      }
+    ],
+    "sample_data": [
+      {
+        "title": "State of the Subreddit (January 2027): Mods applications and rules updates",
+        "score": 68,
+        "url": "https://www.reddit.com/r/programming/"
+      }
+    ],
+    "display_hint": "card_list",
+    "type": "data"
+  },
+  "navigate_to_programming_subreddit": {
+    "name": "navigate_to_programming_subreddit",
+    "profile_id": "7c4add5b-6f9f-4a35-8f72-b3da5f068570",
+    "description": "Navigate to the /r/programming subreddit page on Reddit.",
+    "instructions": "Navigate to URL and extract title, score, and URL for each item in the list.",
+    "output_schema": [
+      {
+        "title": "string",
+        "score": "integer",
+        "url": "string"
+      }
+    ],
+    "sample_data": [
+      {
+        "title": "Yes, and...",
+        "score": 145,
+        "url": "https://htmx.org/essays/yes-and/"
+      },
+      {
+        "title": "Anthropic: AI assisted coding doesn't show efficiency gains and impairs developers abilities.",
+        "score": 4000,
+        "url": "https://arxiv.org/abs/2601.20245"
+      },
+      {
+        "title": "Understanding RabbitMQ in simple terms",
+        "score": 39,
+        "url": "https://sushantdhiman.dev/understanding-rabbitmq/"
+      },
+      {
+        "title": "Bringing Claude Code Skills into Neovim via ACP",
+        "score": 0,
+        "url": null
+      }
+    ],
+    "display_hint": "card_list",
+    "type": "action"
+  },
+  "extract_top_highlights": {
+    "name": "extract_top_highlights",
+    "profile_id": "7c4add5b-6f9f-4a35-8f72-b3da5f068570",
+    "description": "Extract the top posts from the /r/programming subreddit, including the title, score, and submitter for each post.",
+    "instructions": "Navigate to URL and extract title, score, and submitter for each post.",
+    "output_schema": [
+      {
+        "title": "string",
+        "score": "integer",
+        "url": "string"
+      }
+    ],
+    "sample_data": [
+      {
+        "title": "Yes, and...",
+        "score": 145,
+        "submitter": "u/BinaryIgor"
+      },
+      {
+        "title": "Anthropic: AI assisted coding doesn't show efficiency gains and impairs developers abilities.",
+        "score": 4000,
+        "submitter": "u/Gil_berth"
+      },
+      {
+        "title": "Understanding RabbitMQ in simple terms",
+        "score": 39,
+        "submitter": "u/Sushant098123"
+      }
+    ],
     "display_hint": "card_list",
     "type": "data"
   }

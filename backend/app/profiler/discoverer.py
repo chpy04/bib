@@ -43,6 +43,91 @@ _SUGGESTED_FIELDS_META_KEYS = frozenset({
 })
 
 
+def _try_recover_inner_json_string(cleaned: str) -> dict | None:
+    """
+    Fallback: recover when extracted_data_json's string value is truncated.
+
+    The done() character limit cuts the output mid-string, e.g.:
+      {"extracted_data_json": "[{\"title\": \"...\", ...TRUNCATED
+
+    Strategy:
+      1. Locate the start of the extracted_data_json value (after the opening ")
+      2. Walk backwards from the end, finding the last complete JSON object (last })
+      3. Close the inner array, unescape JSON string encoding, parse the data
+      4. Synthesize the required outer fields from what we could recover
+    """
+    import re
+
+    m = re.search(r'"extracted_data_json"\s*:\s*"', cleaned)
+    if not m:
+        return None
+
+    # inner_raw: the still-JSON-escaped content after the opening "
+    inner_raw = cleaned[m.end():]
+
+    pos = len(inner_raw)
+    while pos > 0:
+        pos = inner_raw.rfind("}", 0, pos)
+        if pos < 0:
+            break
+
+        candidate = inner_raw[: pos + 1]
+        # Close the array if it starts with [ but isn't yet closed
+        if candidate.lstrip().startswith("[") and not candidate.rstrip().endswith("]"):
+            candidate += "]"
+
+        # Unescape JSON string encoding (order: \\ must come before \")
+        unescaped = (
+            candidate
+            .replace("\\\\", "\x00BSLASH\x00")  # stash \\
+            .replace('\\"', '"')                  # \" → "
+            .replace("\\/", "/")                  # \/ → /
+            .replace("\\n", "\n")                 # \n → newline
+            .replace("\\t", "\t")                 # \t → tab
+            .replace("\\r", "\r")                 # \r → CR
+            .replace("\x00BSLASH\x00", "\\")      # restore \
+        )
+
+        try:
+            extracted = json.loads(unescaped)
+        except json.JSONDecodeError:
+            continue
+
+        if not extracted:
+            continue
+
+        first = extracted[0] if isinstance(extracted, list) and extracted else extracted
+        if not isinstance(first, dict):
+            continue
+
+        fields: dict[str, str] = {}
+        for k, v in first.items():
+            if k in _SUGGESTED_FIELDS_META_KEYS:
+                continue
+            if isinstance(v, bool):
+                fields[k] = "boolean"
+            elif isinstance(v, int):
+                fields[k] = "integer"
+            elif isinstance(v, float):
+                fields[k] = "number"
+            else:
+                fields[k] = "string"
+
+        is_list = isinstance(extracted, list)
+        logger.warning(
+            "Recovered %d record(s) from truncated extracted_data_json (inner-string fallback)",
+            len(extracted) if is_list else 1,
+        )
+        return {
+            "extracted_data_json": json.dumps(extracted),
+            "agent_prompt_used": "Navigate to the URL and extract the required data.",
+            "suggested_fields": fields,
+            "is_list": is_list,
+        }
+
+    return None
+
+
 def _parse_discovery_result(raw: str) -> DiscoveryResult | None:
     """
     Parse the agent's final_result() string into a DiscoveryResult.
@@ -82,7 +167,10 @@ def _parse_discovery_result(raw: str) -> DiscoveryResult | None:
 
     if not isinstance(data, dict):
         logger.warning("Could not parse discovery result as JSON: %s", cleaned[:300])
-        return None
+        # Final fallback: try to recover partial data from a truncated inner string
+        data = _try_recover_inner_json_string(cleaned)
+        if not isinstance(data, dict):
+            return None
 
     # Validate required fields are present
     required = {"extracted_data_json", "agent_prompt_used", "suggested_fields", "is_list"}
