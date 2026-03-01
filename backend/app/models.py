@@ -49,6 +49,8 @@ class VerifiedTask(BaseModel):
     type: str
     instructions: str  # step-by-step instructions from agent action history
     sample_output: Any
+    scraping_cells: list[str] = []  # executable Python cells from CodeAgent for fast refresh
+    js_variables: dict[str, str] = {}  # named JS block strings (e.g. extract_hn_stories) used by the cells
 
 
 # ── UI generation ─────────────────────────────────────────────────────────────

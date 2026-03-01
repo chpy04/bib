@@ -1,10 +1,16 @@
 """Browser Use agent runners for task verification and runtime execution."""
+import ast
 import asyncio
+import io
 import json
 import logging
+import sys
 from typing import Any
 
 from browser_use import Agent, Browser
+from browser_use.code_use import CodeAgent, create_namespace
+from browser_use.code_use.views import CellType, ExecutionStatus
+from browser_use.filesystem.file_system import FileSystem
 from browser_use.llm import ChatAnthropic, ChatBrowserUse
 
 from app.config import settings
@@ -16,14 +22,14 @@ MAX_CONCURRENT = 3
 
 
 def _make_browser_use_llm() -> ChatBrowserUse:
-    """Fast LLM for browser navigation (verify step)."""
+    """Fast LLM for browser navigation. CodeAgent requires ChatBrowserUse."""
     return ChatBrowserUse(
         api_key=settings.browser_use_api_key,
     )
 
 
 def _make_anthropic_llm() -> ChatAnthropic:
-    """Stronger LLM for structured JSON output (data fetch step)."""
+    """Stronger LLM for structured JSON output (agent slow-path fallback)."""
     return ChatAnthropic(
         model=settings.anthropic_model,
         api_key=settings.anthropic_api_key,
@@ -84,8 +90,76 @@ def _parse_result(raw: str) -> Any:
         return cleaned
 
 
+async def _exec_cell(code: str, namespace: dict) -> None:
+    """Execute a single Python code cell in the given namespace.
+
+    Mirrors CodeAgent's _execute_code() logic: wraps cells containing `await`
+    in an async function so top-level await works, then merges any new local
+    variables back into the shared namespace so subsequent cells can use them.
+    """
+    namespace["_current_cell_code"] = code
+
+    old_stdout = sys.stdout
+    sys.stdout = io.StringIO()
+    try:
+        try:
+            tree = ast.parse(code, mode="exec")
+            has_await = any(
+                isinstance(node, (ast.Await, ast.AsyncWith, ast.AsyncFor))
+                for node in ast.walk(tree)
+            )
+        except SyntaxError:
+            has_await = False
+
+        if has_await:
+            assigned_names: set[str] = set()
+            try:
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.Assign):
+                        for target in node.targets:
+                            if isinstance(target, ast.Name):
+                                assigned_names.add(target.id)
+                    elif (
+                        isinstance(node, ast.AugAssign)
+                        and isinstance(node.target, ast.Name)
+                    ):
+                        assigned_names.add(node.target.id)
+            except Exception:
+                pass
+
+            existing_vars = {name for name in assigned_names if name in namespace}
+            global_decl = (
+                f"    global {', '.join(sorted(existing_vars))}\n"
+                if existing_vars
+                else ""
+            )
+            indented = "\n".join(
+                "    " + line if line.strip() else line for line in code.split("\n")
+            )
+            wrapped = (
+                "async def __exec__():\n"
+                f"{global_decl}{indented}\n"
+                "    return locals()\n\n"
+                "__exec_coro__ = __exec__()\n"
+            )
+
+            exec(compile(wrapped, "<cell>", "exec"), namespace, namespace)  # noqa: S102
+            coro = namespace.pop("__exec_coro__", None)
+            namespace.pop("__exec__", None)
+            if coro:
+                result_locals = await coro
+                if result_locals:
+                    for k, v in result_locals.items():
+                        if not k.startswith("_"):
+                            namespace[k] = v
+        else:
+            exec(compile(code, "<cell>", "exec"), namespace, namespace)  # noqa: S102
+    finally:
+        sys.stdout = old_stdout
+
+
 async def verify_task(task: Task, url: str, profile_id: str) -> VerifiedTask | None:
-    """Run a Browser Use agent to verify a single task and capture sample data."""
+    """Run a CodeAgent to verify a single task, capture sample data and scraping code."""
     schema_json = json.dumps(task.output_schema, indent=2)
     task_prompt = (
         f"Navigate to {url} and perform the following task:\n"
@@ -95,16 +169,19 @@ async def verify_task(task: Task, url: str, profile_id: str) -> VerifiedTask | N
     )
 
     browser = await _make_browser(profile_id)
+    agent: CodeAgent | None = None
+    session = None
     try:
-        agent = Agent(
+        await browser.start()
+        agent = CodeAgent(
             task=task_prompt,
             llm=_make_browser_use_llm(),
             browser=browser,
             max_failures=3,
         )
-        history = await agent.run(max_steps=20)
+        session = await agent.run(max_steps=30)
     except Exception as e:
-        logger.error("Agent failed for task '%s': %s", task.id, e)
+        logger.error("CodeAgent failed for task '%s': %s", task.id, e)
         return None
     finally:
         try:
@@ -112,15 +189,40 @@ async def verify_task(task: Task, url: str, profile_id: str) -> VerifiedTask | N
         except Exception:
             pass
 
-    raw = history.final_result()
+    raw = session.history.final_result()
     if not raw:
         logger.warning("No result returned for task '%s'", task.id)
         return None
 
     sample_output = _parse_result(raw)
-    instructions = _format_instructions(history)
 
-    logger.info("Verified task '%s'", task.id)
+    # Extract the successfully-executed code cells for deterministic re-use at refresh time.
+    scraping_cells = [
+        cell.source
+        for cell in agent.session.cells
+        if cell.status == ExecutionStatus.SUCCESS and cell.cell_type == CellType.CODE
+    ]
+
+    # Extract named JS block variables (e.g. extract_hn_stories) that Python cells reference.
+    # CodeAgent stores these in namespace under their name, tracked via _code_block_vars.
+    code_block_vars: set = agent.namespace.get("_code_block_vars", set())
+    js_variables: dict[str, str] = {
+        name: agent.namespace[name]
+        for name in code_block_vars
+        if name in agent.namespace and isinstance(agent.namespace[name], str)
+    }
+
+    # Build a human-readable instructions string from the cells.
+    if scraping_cells:
+        instructions = "\n\n".join(
+            f"# Step {i + 1}\n{cell}" for i, cell in enumerate(scraping_cells)
+        )
+    else:
+        instructions = _format_instructions(session.history)
+
+    logger.info(
+        "Verified task '%s' (%d code cells captured)", task.id, len(scraping_cells)
+    )
     return VerifiedTask(
         id=task.id,
         description=task.description,
@@ -129,6 +231,8 @@ async def verify_task(task: Task, url: str, profile_id: str) -> VerifiedTask | N
         type=task.type,
         instructions=instructions,
         sample_output=sample_output,
+        scraping_cells=scraping_cells,
+        js_variables=js_variables,
     )
 
 
@@ -154,7 +258,12 @@ async def verify_tasks(tasks: list[Task], url: str, profile_id: str) -> list[Ver
 
 
 async def run_instruction(instruction_name: str, profile_id: str) -> dict[str, Any]:
-    """Execute a named instruction from the registry."""
+    """Execute a named instruction from the registry.
+
+    Fast path: re-execute the stored CodeAgent code cells directly (no LLM needed).
+    Slow path: fall back to a full Browser Use agent if the fast path fails or no
+    cells are stored (e.g. instructions created before this feature was added).
+    """
     from app.registry import get_instruction
 
     instruction = get_instruction(profile_id, instruction_name)
@@ -166,6 +275,63 @@ async def run_instruction(instruction_name: str, profile_id: str) -> dict[str, A
             "error": f"Instruction '{instruction_name}' not found in registry",
         }
 
+    scraping_cells: list[str] = instruction.get("scraping_cells") or []
+
+    # ── Fast path: re-execute stored code cells ───────────────────────────────
+    if scraping_cells:
+        browser = await _make_browser(profile_id)
+        try:
+            await browser.start()
+            namespace = create_namespace(browser, file_system=FileSystem(base_dir="./"))
+            # Inject JS block variables that the Python cells reference.
+            js_variables: dict[str, str] = instruction.get("js_variables") or {}
+            namespace.update(js_variables)
+            # Disable done() structural validation — we trust the stored cells.
+            namespace["_consecutive_errors"] = 4
+
+            for cell_code in scraping_cells:
+                try:
+                    await _exec_cell(cell_code, namespace)
+                except Exception as cell_err:
+                    logger.warning(
+                        "Cell error during '%s' fast path: %s",
+                        instruction_name,
+                        cell_err,
+                    )
+                if namespace.get("_task_done"):
+                    break
+
+            raw = namespace.get("_task_result")
+            if raw and namespace.get("_task_success", True) is not False:
+                data = _parse_result(raw)
+                # Treat empty list/dict as a failed extraction — fall through to agent.
+                if not isinstance(data, str) and data:
+                    logger.info(
+                        "Fast path succeeded for instruction '%s'", instruction_name
+                    )
+                    return {
+                        "instruction_name": instruction_name,
+                        "data": data,
+                        "success": True,
+                    }
+
+            logger.warning(
+                "Fast path produced no valid output for '%s', falling back to agent",
+                instruction_name,
+            )
+        except Exception as e:
+            logger.warning(
+                "Fast path failed for '%s', falling back to agent: %s",
+                instruction_name,
+                e,
+            )
+        finally:
+            try:
+                await browser.stop()
+            except Exception:
+                pass
+
+    # ── Slow path: full browser agent ────────────────────────────────────────
     schema_json = json.dumps(instruction.get("output_schema", {}), indent=2)
     task_prompt = (
         f"Follow these instructions exactly:\n"

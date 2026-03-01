@@ -59,7 +59,7 @@ async def add_tool(profile_id: str, req: AddToolRequest):
     task = plan.tasks[0]
 
     try:
-        verified = await agent_verify_task(task, url)
+        verified = await agent_verify_task(task, url, profile_id)
     except Exception as e:
         logger.exception("Verification failed for add_tool")
         raise HTTPException(status_code=502, detail=f"Verification failed: {e}")
@@ -79,6 +79,8 @@ async def add_tool(profile_id: str, req: AddToolRequest):
             "sample_output": verified.sample_output,
             "display_hint": verified.display_hint,
             "type": verified.type,
+            "scraping_cells": verified.scraping_cells,
+            "js_variables": verified.js_variables,
         },
     )
 

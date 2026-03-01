@@ -45,10 +45,11 @@ async def get_data(
             detail=f"Instruction '{instruction_name}' not found",
         )
 
-    # Serve from cache unless the caller explicitly asks for a refresh
+    # Serve from cache unless the caller explicitly asks for a refresh.
+    # Skip empty cache (e.g. [] from a failed verification) and re-fetch.
     if not refresh:
         cached = get_cached_data(profile_id, instruction_name)
-        if cached is not None:
+        if cached is not None and cached["data"]:
             return {
                 "instruction_name": instruction_name,
                 "data": cached["data"],
