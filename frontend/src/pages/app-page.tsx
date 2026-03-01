@@ -201,12 +201,7 @@ export function AppPage() {
             </button>
           )}
 
-          <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded bg-accent">
-              <span className="text-xs font-bold text-accent-foreground">B</span>
-            </div>
-            <span className="text-sm font-semibold text-foreground">BiB</span>
-          </div>
+          <img src="/logo.svg" alt="BiB" className="h-12 w-auto" />
 
           <div className="w-20" />
         </div>

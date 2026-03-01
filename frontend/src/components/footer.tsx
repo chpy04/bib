@@ -4,12 +4,7 @@ export function Footer() {
   return (
     <footer className="border-t border-border px-6 py-12">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 md:flex-row">
-        <div className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded bg-accent">
-            <span className="text-xs font-bold text-accent-foreground">B</span>
-          </div>
-          <span className="text-sm font-semibold text-foreground">BiB</span>
-        </div>
+        <img src="/logo.svg" alt="BiB" className="h-10 w-auto" />
         <div className="flex items-center gap-6">
           <Link to="/#features" className="text-xs text-muted-foreground transition-colors hover:text-foreground">
             Features
