@@ -1,4 +1,4 @@
-import type { Profile, CreateProfileResponse, ComponentResponse } from '../types';
+import type { Profile } from '../types';
 
 const API_BASE = '/api';
 const WS_BASE = `ws://${window.location.hostname}:8000`;
@@ -8,7 +8,7 @@ export async function fetchProfiles(): Promise<Profile[]> {
   return res.json();
 }
 
-export async function createProfile(url: string, request: string): Promise<CreateProfileResponse> {
+export async function createProfile(url: string, request: string): Promise<Profile> {
   const res = await fetch(`${API_BASE}/profiles`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -19,11 +19,6 @@ export async function createProfile(url: string, request: string): Promise<Creat
 
 export async function getProfile(profileId: string): Promise<Profile> {
   const res = await fetch(`${API_BASE}/profiles/${profileId}`);
-  return res.json();
-}
-
-export async function getComponent(profileId: string): Promise<ComponentResponse> {
-  const res = await fetch(`${API_BASE}/profiles/${profileId}/component`);
   return res.json();
 }
 

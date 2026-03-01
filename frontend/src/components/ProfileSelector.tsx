@@ -23,7 +23,7 @@ export default function ProfileSelector({ profiles, onSelect, onCreate }: Props)
               className="w-full text-left p-4 rounded-lg bg-gray-800 hover:bg-gray-700 transition"
             >
               <div className="font-medium">{p.name}</div>
-              <div className="text-sm text-gray-400">{p.url}</div>
+              <div className="text-sm text-gray-400">{p.base_url}</div>
             </button>
           ))}
         </div>
