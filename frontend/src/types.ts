@@ -1,33 +1,29 @@
-export type TaskType = 'DATA_READ' | 'ACTION';
+export type Phase = 'auth' | 'prompt' | 'planning' | 'verifying' | 'generating' | 'display';
 
-export interface OutputSchema {
-  fields: Record<string, string>;
-  is_list: boolean;
-  sample_data: unknown;
-}
-
-export interface TaskProfile {
-  name: string;
-  type: TaskType;
+export interface Task {
+  id: string;
   description: string;
-  agent_prompt: string;
-  input_params: string[] | null;
-  output_schema: OutputSchema;
+  output_schema: Record<string, unknown>;
+  display_hint: string;
+  type: 'data' | 'action';
 }
 
-export interface Profile {
-  profile_id: string;
-  base_url: string;
+export interface TaskPlan {
+  tasks: Task[];
+  layout_hint: string;
+}
+
+export interface VerifiedTask extends Task {
+  instructions: string;
+  sample_output: unknown;
+}
+
+export interface Instruction {
   name: string;
   description: string;
-  tasks: TaskProfile[];
-  auth_configured: boolean;
-}
-
-export type ConnectionStatus = 'connected' | 'disconnected' | 'error' | 'running';
-
-export interface WSMessage {
-  type: string;
-  data?: Record<string, unknown>;
-  status?: ConnectionStatus;
+  instructions: string;
+  output_schema: Record<string, unknown>;
+  sample_output: unknown;
+  display_hint: string;
+  type: 'data' | 'action';
 }

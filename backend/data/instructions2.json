@@ -263,5 +263,313 @@
     ],
     "display_hint": "card_list",
     "type": "data"
+  },
+  "top_news_with_comments": {
+    "name": "top_news_with_comments",
+    "description": "Fetch the top stories from Hacker News front page, including the title, link, score, submitter, and comment count for each story",
+    "instructions": "Step 1: {'switch': {'tab_id': '788F'}, 'interacted_element': None}\nStep 2: {'extract': {'query': 'Extract all stories with rank, title, url, score, submitter, comment count, and comments URL for each story', 'extract_links': True, 'start_from_char': 0}, 'interacted_element': None}\nStep 3: {'done': {'text': '[{\"rank\":\"1\",\"title\":\"Microgpt\",\"url\":\"http://karpathy.github.io/2026/02/12/microgpt/\",\"score\":\"647 points\",\"submitted_by\":\"tambourine_man\",\"comment_count\":\"111\",\"comments_url\":\"https://news.ycombinator.com/item?id=47202708\"},{\"rank\":\"2\",\"title\":\"We do not think Anthropic should be designated as a supply chain risk\",\"url\":\"https://twitter.com/OpenAI/status/2027846016423321831\",\"score\":\"490 points\",\"submitted_by\":\"golfer\",\"comment_count\":\"234\",\"comments_url\":\"https://news.ycombinator.com/item?id=47200420\"},{\"rank\":\"3\",\"title\":\"The Windows 95 user interface: A case study in usability engineering (1996)\",\"url\":\"https://dl.acm.org/doi/fullHtml/10.1145/238386.238611\",\"score\":\"242 points\",\"submitted_by\":\"ksec\",\"comment_count\":\"139\",\"comments_url\":\"https://news.ycombinator.com/item?id=47200904\"},{\"rank\":\"4\",\"title\":\"10-202: Introduction to Modern AI (CMU)\",\"url\":\"https://modernaicourse.org\",\"score\":\"4 points\",\"submitted_by\":\"vismit2000\",\"comment_count\":\"discuss\",\"comments_url\":\"https://news.ycombinator.com/item?id=47204559\"},{\"rank\":\"5\",\"title\":\"The happiest I\\'ve ever been\",\"url\":\"https://ben-mini.com/2026/the-happiest-ive-ever-been\",\"score\":\"454 points\",\"submitted_by\":\"bewal416\",\"comment_count\":\"227\",\"comments_url\":\"https://news.ycombinator.com/item?id=47161759\"},{\"rank\":\"6\",\"title\":\"Obsidian Sync now has a headless client\",\"url\":\"https://help.obsidian.md/sync/headless\",\"score\":\"459 points\",\"submitted_by\":\"adilmoujahid\",\"comment_count\":\"158\",\"comments_url\":\"https://news.ycombinator.com/item?id=47197267\"},{\"rank\":\"7\",\"title\":\"Sub-second volumetric 3D printing by synthesis of holographic light fields\",\"url\":\"https://www.nature.com/articles/s41586-026-10114-5\",\"score\":\"49 points\",\"submitted_by\":\"zdw\",\"comment_count\":\"10\",\"comments_url\":\"https://news.ycombinator.com/item?id=47152448\"},{\"rank\":\"8\",\"title\":\"H-Bomb: A Frank Lloyd Wright Typographic Mystery\",\"url\":\"https://www.inconspicuous.info/p/h-bomb-a-frank-lloyd-wright-typographic\",\"score\":\"74 points\",\"submitted_by\":\"mrngm\",\"comment_count\":\"17\",\"comments_url\":\"https://news.ycombinator.com/item?id=47163779\"},{\"rank\":\"9\",\"title\":\"Block the \\\\\"Upgrade to Tahoe\\\\\" Alerts\",\"url\":\"https://robservatory.com/block-the-upgrade-to-tahoe-alerts-and-system-settings-indicator/\",\"score\":\"207 points\",\"submitted_by\":\"todsacerdoti\",\"comment_count\":\"101\",\"comments_url\":\"https://news.ycombinator.com/item?id=47198977\"},{\"rank\":\"10\",\"title\":\"Hardwood: A New Parser for Apache Parquet\",\"url\":\"https://www.morling.dev/blog/hardwood-new-parser-for-apache-parquet/\",\"score\":\"18 points\",\"submitted_by\":\"rmoff\",\"comment_count\":\"1\",\"comments_url\":\"https://news.ycombinator.com/item?id=47167432\"},{\"rank\":\"11\",\"title\":\"Woxi: Wolfram Mathematica Reimplementation in Rust\",\"url\":\"https://github.com/ad-si/Woxi\",\"score\":\"280 points\",\"submitted_by\":\"adamnemecek\",\"comment_count\":\"115\",\"comments_url\":\"https://news.ycombinator.com/item?id=47155526\"},{\"rank\":\"12\",\"title\":\"Addressing Antigravity Bans and Reinstating Access\",\"url\":\"https://github.com/google-gemini/gemini-cli/discussions/20632\",\"score\":\"229 points\",\"submitted_by\":\"RyanShook\",\"comment_count\":\"188\",\"comments_url\":\"https://news.ycombinator.com/item?id=47195371\"},{\"rank\":\"13\",\"title\":\"Verified Spec-Driven Development (VSDD)\",\"url\":\"https://gist.github.com/dollspace-gay/d8d3bc3ecf4188df049d7a4726bb2a00\",\"score\":\"176 points\",\"submitted_by\":\"todsacerdoti\",\"comment_count\":\"94\",\"comments_url\":\"https://news.ycombinator.com/item?id=47197595\"},{\"rank\":\"14\",\"title\":\"MCP server that reduces Claude Code context consumption by 98%\",\"url\":\"https://mksg.lu/blog/context-mode\",\"score\":\"350 points\",\"submitted_by\":\"mksglu\",\"comment_count\":\"76\",\"comments_url\":\"https://news.ycombinator.com/item?id=47193064\"},{\"rank\":\"15\",\"title\":\"Show HN: Now I Get It \u2013 Translate scientific papers into interactive webpages\",\"url\":\"https://nowigetit.us\",\"score\":\"230 points\",\"submitted_by\":\"jbdamask\",\"comment_count\":\"105\",\"comments_url\":\"https://news.ycombinator.com/item?id=47195123\"},{\"rank\":\"16\",\"title\":\"Qwen3.5 122B and 35B models offer Sonnet 4.5 performance on local computers\",\"url\":\"https://venturebeat.com/technology/alibabas-new-open-source-qwen3-5-medium-models-offer-sonnet-4-5-performance\",\"score\":\"330 points\",\"submitted_by\":\"lostmsu\",\"comment_count\":\"195\",\"comments_url\":\"https://news.ycombinator.com/item?id=47199781\"},{\"rank\":\"17\",\"title\":\"Our Agreement with the Department of War\",\"url\":\"https://openai.com/index/our-agreement-with-the-department-of-war\",\"score\":\"283 points\",\"submitted_by\":\"surprisetalk\",\"comment_count\":\"212\",\"comments_url\":\"https://news.ycombinator.com/item?id=47199948\"},{\"rank\":\"18\",\"title\":\"SpacetimeDB ThreeJS Support\",\"url\":\"https://discourse.threejs.org/t/spacetimedb-threejs-support-and-free-tier/90052\",\"score\":\"16 points\",\"submitted_by\":\"ryker2000\",\"comment_count\":\"5\",\"comments_url\":\"https://news.ycombinator.com/item?id=47157265\"},{\"rank\":\"19\",\"title\":\"New evidence that Cantor plagiarized Dedekind?\",\"url\":\"https://www.quantamagazine.org/the-man-who-stole-infinity-20260225/\",\"score\":\"122 points\",\"submitted_by\":\"rbanffy\",\"comment_count\":\"76\",\"comments_url\":\"https://news.ycombinator.com/item?id=47154637\"},{\"rank\":\"20\",\"title\":\"The Science of Detecting LLM-Generated Text\",\"url\":\"https://dl.acm.org/doi/10.1145/3624725\",\"score\":\"20 points\",\"submitted_by\":\"vinhnx\",\"comment_count\":\"4\",\"comments_url\":\"https://news.ycombinator.com/item?id=47202864\"},{\"rank\":\"21\",\"title\":\"Building a Minimal Transformer for 10-digit Addition\",\"url\":\"https://alexlitzenberger.com/blog/post.html?post=/building_a_minimal_transformer_for_10_digit_addition\",\"score\":\"51 points\",\"submitted_by\":\"kelseyfrog\",\"comment_count\":\"7\",\"comments_url\":\"https://news.ycombinator.com/item?id=47200828\"},{\"rank\":\"22\",\"title\":\"Werner Herzog Between Fact and Fiction\",\"url\":\"https://www.thenation.com/article/culture/werner-herzog-future-truth/\",\"score\":\"75 points\",\"submitted_by\":\"Hooke\",\"comment_count\":\"14\",\"comments_url\":\"https://news.ycombinator.com/item?id=47178051\"},{\"rank\":\"23\",\"title\":\"Samsung Galaxy update removes Android recovery menu tools, including sideloading\",\"url\":\"https://9to5google.com/2026/02/27/samsung-galaxy-update-android-recovery-menu-removed/\",\"score\":\"98 points\",\"submitted_by\":\"pabs3\",\"comment_count\":\"21\",\"comments_url\":\"https://news.ycombinator.com/item?id=47202808\"},{\"rank\":\"24\",\"title\":\"Cracking the Python Monorepo\",\"url\":\"https://gafni.dev/blog/cracking-the-python-monorepo/\",\"score\":\"5 points\",\"submitted_by\":\"amcvitty\",\"comment_count\":\"discuss\",\"comments_url\":\"https://news.ycombinator.com/item?id=47172608\"},{\"rank\":\"25\",\"title\":\"The whole thing was a scam\",\"url\":\"https://garymarcus.substack.com/p/the-whole-thing-was-scam\",\"score\":\"758 points\",\"submitted_by\":\"guilamu\",\"comment_count\":\"229\",\"comments_url\":\"https://news.ycombinator.com/item?id=47197505\"},{\"rank\":\"26\",\"title\":\"The archivist preserving decaying floppy disks\",\"url\":\"https://www.popsci.com/technology/floppy-disk-archivist-project/\",\"score\":\"68 points\",\"submitted_by\":\"Brajeshwar\",\"comment_count\":\"12\",\"comments_url\":\"https://news.ycombinator.com/item?id=47152835\"},{\"rank\":\"27\",\"title\":\"Deterministic Programming with LLMs\",\"url\":\"https://www.mcherm.com/deterministic-programming-with-llms.html\",\"score\":\"42 points\",\"submitted_by\":\"todsacerdoti\",\"comment_count\":\"24\",\"comments_url\":\"https://news.ycombinator.com/item?id=47158834\"},{\"rank\":\"28\",\"title\":\"The Eternal Promise: A History of Attempts to Eliminate Programmers\",\"url\":\"https://www.ivanturkovic.com/2026/01/22/history-software-simplification-cobol-ai-hype/\",\"score\":\"269 points\",\"submitted_by\":\"dinvlad\",\"comment_count\":\"176\",\"comments_url\":\"https://news.ycombinator.com/item?id=47147597\"},{\"rank\":\"29\",\"title\":\"Unsloth Dynamic 2.0 GGUFs\",\"url\":\"https://unsloth.ai/docs/basics/unsloth-dynamic-2.0-ggufs\",\"score\":\"222 points\",\"submitted_by\":\"tosh\",\"comment_count\":\"61\",\"comments_url\":\"https://news.ycombinator.com/item?id=47192505\"},{\"rank\":\"30\",\"title\":\"The United States and Israel have launched a major attack on Iran\",\"url\":\"https://www.cnn.com/2026/02/28/middleeast/israel-attack-iran-intl-hnk\",\"score\":\"1112 points\",\"submitted_by\":\"lavp\",\"comment_count\":\"2403\",\"comments_url\":\"https://news.ycombinator.com/item?id=47191232\"}]', 'success': True, 'files_to_display': []}, 'interacted_element': None}",
+    "output_schema": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rank": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "score": {
+            "type": "string"
+          },
+          "submitted_by": {
+            "type": "string"
+          },
+          "comment_count": {
+            "type": "string"
+          },
+          "comments_url": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "sample_output": [
+      {
+        "rank": "1",
+        "title": "Microgpt",
+        "url": "http://karpathy.github.io/2026/02/12/microgpt/",
+        "score": "647 points",
+        "submitted_by": "tambourine_man",
+        "comment_count": "111",
+        "comments_url": "https://news.ycombinator.com/item?id=47202708"
+      },
+      {
+        "rank": "2",
+        "title": "We do not think Anthropic should be designated as a supply chain risk",
+        "url": "https://twitter.com/OpenAI/status/2027846016423321831",
+        "score": "490 points",
+        "submitted_by": "golfer",
+        "comment_count": "234",
+        "comments_url": "https://news.ycombinator.com/item?id=47200420"
+      },
+      {
+        "rank": "3",
+        "title": "The Windows 95 user interface: A case study in usability engineering (1996)",
+        "url": "https://dl.acm.org/doi/fullHtml/10.1145/238386.238611",
+        "score": "242 points",
+        "submitted_by": "ksec",
+        "comment_count": "139",
+        "comments_url": "https://news.ycombinator.com/item?id=47200904"
+      },
+      {
+        "rank": "4",
+        "title": "10-202: Introduction to Modern AI (CMU)",
+        "url": "https://modernaicourse.org",
+        "score": "4 points",
+        "submitted_by": "vismit2000",
+        "comment_count": "discuss",
+        "comments_url": "https://news.ycombinator.com/item?id=47204559"
+      },
+      {
+        "rank": "5",
+        "title": "The happiest I've ever been",
+        "url": "https://ben-mini.com/2026/the-happiest-ive-ever-been",
+        "score": "454 points",
+        "submitted_by": "bewal416",
+        "comment_count": "227",
+        "comments_url": "https://news.ycombinator.com/item?id=47161759"
+      },
+      {
+        "rank": "6",
+        "title": "Obsidian Sync now has a headless client",
+        "url": "https://help.obsidian.md/sync/headless",
+        "score": "459 points",
+        "submitted_by": "adilmoujahid",
+        "comment_count": "158",
+        "comments_url": "https://news.ycombinator.com/item?id=47197267"
+      },
+      {
+        "rank": "7",
+        "title": "Sub-second volumetric 3D printing by synthesis of holographic light fields",
+        "url": "https://www.nature.com/articles/s41586-026-10114-5",
+        "score": "49 points",
+        "submitted_by": "zdw",
+        "comment_count": "10",
+        "comments_url": "https://news.ycombinator.com/item?id=47152448"
+      },
+      {
+        "rank": "8",
+        "title": "H-Bomb: A Frank Lloyd Wright Typographic Mystery",
+        "url": "https://www.inconspicuous.info/p/h-bomb-a-frank-lloyd-wright-typographic",
+        "score": "74 points",
+        "submitted_by": "mrngm",
+        "comment_count": "17",
+        "comments_url": "https://news.ycombinator.com/item?id=47163779"
+      },
+      {
+        "rank": "9",
+        "title": "Block the \"Upgrade to Tahoe\" Alerts",
+        "url": "https://robservatory.com/block-the-upgrade-to-tahoe-alerts-and-system-settings-indicator/",
+        "score": "207 points",
+        "submitted_by": "todsacerdoti",
+        "comment_count": "101",
+        "comments_url": "https://news.ycombinator.com/item?id=47198977"
+      },
+      {
+        "rank": "10",
+        "title": "Hardwood: A New Parser for Apache Parquet",
+        "url": "https://www.morling.dev/blog/hardwood-new-parser-for-apache-parquet/",
+        "score": "18 points",
+        "submitted_by": "rmoff",
+        "comment_count": "1",
+        "comments_url": "https://news.ycombinator.com/item?id=47167432"
+      },
+      {
+        "rank": "11",
+        "title": "Woxi: Wolfram Mathematica Reimplementation in Rust",
+        "url": "https://github.com/ad-si/Woxi",
+        "score": "280 points",
+        "submitted_by": "adamnemecek",
+        "comment_count": "115",
+        "comments_url": "https://news.ycombinator.com/item?id=47155526"
+      },
+      {
+        "rank": "12",
+        "title": "Addressing Antigravity Bans and Reinstating Access",
+        "url": "https://github.com/google-gemini/gemini-cli/discussions/20632",
+        "score": "229 points",
+        "submitted_by": "RyanShook",
+        "comment_count": "188",
+        "comments_url": "https://news.ycombinator.com/item?id=47195371"
+      },
+      {
+        "rank": "13",
+        "title": "Verified Spec-Driven Development (VSDD)",
+        "url": "https://gist.github.com/dollspace-gay/d8d3bc3ecf4188df049d7a4726bb2a00",
+        "score": "176 points",
+        "submitted_by": "todsacerdoti",
+        "comment_count": "94",
+        "comments_url": "https://news.ycombinator.com/item?id=47197595"
+      },
+      {
+        "rank": "14",
+        "title": "MCP server that reduces Claude Code context consumption by 98%",
+        "url": "https://mksg.lu/blog/context-mode",
+        "score": "350 points",
+        "submitted_by": "mksglu",
+        "comment_count": "76",
+        "comments_url": "https://news.ycombinator.com/item?id=47193064"
+      },
+      {
+        "rank": "15",
+        "title": "Show HN: Now I Get It \u2013 Translate scientific papers into interactive webpages",
+        "url": "https://nowigetit.us",
+        "score": "230 points",
+        "submitted_by": "jbdamask",
+        "comment_count": "105",
+        "comments_url": "https://news.ycombinator.com/item?id=47195123"
+      },
+      {
+        "rank": "16",
+        "title": "Qwen3.5 122B and 35B models offer Sonnet 4.5 performance on local computers",
+        "url": "https://venturebeat.com/technology/alibabas-new-open-source-qwen3-5-medium-models-offer-sonnet-4-5-performance",
+        "score": "330 points",
+        "submitted_by": "lostmsu",
+        "comment_count": "195",
+        "comments_url": "https://news.ycombinator.com/item?id=47199781"
+      },
+      {
+        "rank": "17",
+        "title": "Our Agreement with the Department of War",
+        "url": "https://openai.com/index/our-agreement-with-the-department-of-war",
+        "score": "283 points",
+        "submitted_by": "surprisetalk",
+        "comment_count": "212",
+        "comments_url": "https://news.ycombinator.com/item?id=47199948"
+      },
+      {
+        "rank": "18",
+        "title": "SpacetimeDB ThreeJS Support",
+        "url": "https://discourse.threejs.org/t/spacetimedb-threejs-support-and-free-tier/90052",
+        "score": "16 points",
+        "submitted_by": "ryker2000",
+        "comment_count": "5",
+        "comments_url": "https://news.ycombinator.com/item?id=47157265"
+      },
+      {
+        "rank": "19",
+        "title": "New evidence that Cantor plagiarized Dedekind?",
+        "url": "https://www.quantamagazine.org/the-man-who-stole-infinity-20260225/",
+        "score": "122 points",
+        "submitted_by": "rbanffy",
+        "comment_count": "76",
+        "comments_url": "https://news.ycombinator.com/item?id=47154637"
+      },
+      {
+        "rank": "20",
+        "title": "The Science of Detecting LLM-Generated Text",
+        "url": "https://dl.acm.org/doi/10.1145/3624725",
+        "score": "20 points",
+        "submitted_by": "vinhnx",
+        "comment_count": "4",
+        "comments_url": "https://news.ycombinator.com/item?id=47202864"
+      },
+      {
+        "rank": "21",
+        "title": "Building a Minimal Transformer for 10-digit Addition",
+        "url": "https://alexlitzenberger.com/blog/post.html?post=/building_a_minimal_transformer_for_10_digit_addition",
+        "score": "51 points",
+        "submitted_by": "kelseyfrog",
+        "comment_count": "7",
+        "comments_url": "https://news.ycombinator.com/item?id=47200828"
+      },
+      {
+        "rank": "22",
+        "title": "Werner Herzog Between Fact and Fiction",
+        "url": "https://www.thenation.com/article/culture/werner-herzog-future-truth/",
+        "score": "75 points",
+        "submitted_by": "Hooke",
+        "comment_count": "14",
+        "comments_url": "https://news.ycombinator.com/item?id=47178051"
+      },
+      {
+        "rank": "23",
+        "title": "Samsung Galaxy update removes Android recovery menu tools, including sideloading",
+        "url": "https://9to5google.com/2026/02/27/samsung-galaxy-update-android-recovery-menu-removed/",
+        "score": "98 points",
+        "submitted_by": "pabs3",
+        "comment_count": "21",
+        "comments_url": "https://news.ycombinator.com/item?id=47202808"
+      },
+      {
+        "rank": "24",
+        "title": "Cracking the Python Monorepo",
+        "url": "https://gafni.dev/blog/cracking-the-python-monorepo/",
+        "score": "5 points",
+        "submitted_by": "amcvitty",
+        "comment_count": "discuss",
+        "comments_url": "https://news.ycombinator.com/item?id=47172608"
+      },
+      {
+        "rank": "25",
+        "title": "The whole thing was a scam",
+        "url": "https://garymarcus.substack.com/p/the-whole-thing-was-scam",
+        "score": "758 points",
+        "submitted_by": "guilamu",
+        "comment_count": "229",
+        "comments_url": "https://news.ycombinator.com/item?id=47197505"
+      },
+      {
+        "rank": "26",
+        "title": "The archivist preserving decaying floppy disks",
+        "url": "https://www.popsci.com/technology/floppy-disk-archivist-project/",
+        "score": "68 points",
+        "submitted_by": "Brajeshwar",
+        "comment_count": "12",
+        "comments_url": "https://news.ycombinator.com/item?id=47152835"
+      },
+      {
+        "rank": "27",
+        "title": "Deterministic Programming with LLMs",
+        "url": "https://www.mcherm.com/deterministic-programming-with-llms.html",
+        "score": "42 points",
+        "submitted_by": "todsacerdoti",
+        "comment_count": "24",
+        "comments_url": "https://news.ycombinator.com/item?id=47158834"
+      },
+      {
+        "rank": "28",
+        "title": "The Eternal Promise: A History of Attempts to Eliminate Programmers",
+        "url": "https://www.ivanturkovic.com/2026/01/22/history-software-simplification-cobol-ai-hype/",
+        "score": "269 points",
+        "submitted_by": "dinvlad",
+        "comment_count": "176",
+        "comments_url": "https://news.ycombinator.com/item?id=47147597"
+      },
+      {
+        "rank": "29",
+        "title": "Unsloth Dynamic 2.0 GGUFs",
+        "url": "https://unsloth.ai/docs/basics/unsloth-dynamic-2.0-ggufs",
+        "score": "222 points",
+        "submitted_by": "tosh",
+        "comment_count": "61",
+        "comments_url": "https://news.ycombinator.com/item?id=47192505"
+      },
+      {
+        "rank": "30",
+        "title": "The United States and Israel have launched a major attack on Iran",
+        "url": "https://www.cnn.com/2026/02/28/middleeast/israel-attack-iran-intl-hnk",
+        "score": "1112 points",
+        "submitted_by": "lavp",
+        "comment_count": "2403",
+        "comments_url": "https://news.ycombinator.com/item?id=47191232"
+      }
+    ],
+    "display_hint": "card_list",
+    "type": "data"
   }
 }

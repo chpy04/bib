@@ -1,10 +1,11 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes.profiles import router as profiles_router
-from app.routes.ws import router as ws_router
-from app.routes.instructions import router as instructions_router
 
-app = FastAPI(title="BiB - Browser in Browser")
+from app.routes.auth import router as auth_router
+from app.routes.data import router as data_router
+from app.routes.tasks import router as tasks_router
+
+app = FastAPI(title="BiB — Browser in Browser")
 
 app.add_middleware(
     CORSMiddleware,
@@ -22,9 +23,9 @@ async def log_requests(request: Request, call_next):
     return response
 
 
-app.include_router(profiles_router, prefix="/api")
-app.include_router(ws_router)
-app.include_router(instructions_router, prefix="/api")
+app.include_router(auth_router, prefix="/api")
+app.include_router(tasks_router, prefix="/api")
+app.include_router(data_router, prefix="/api")
 
 
 @app.get("/api/health")
