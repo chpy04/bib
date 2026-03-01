@@ -27,8 +27,9 @@ class CreateProfileRequest(BaseModel):
 
 
 class RunRequest(BaseModel):
-    url: str = ""
     prompt: str
+    url: str = ""
+    session_id: str | None = None
 
 
 class WSMessage(BaseModel):

@@ -16,28 +16,23 @@ Rules:
 """
 
 
-async def generate_ui(url: str, user_prompt: str) -> str:
+async def generate_ui(messages: list[dict]) -> str:
     """
-    Call Dedalus Labs API to generate a React component from a user prompt.
+    Call Dedalus Labs API to generate a React component.
+    Takes the full conversation history (with system prompt prepended).
     Returns the component source code as a string.
     """
-    if url:
-        user_message = f"User request: {user_prompt}"
-    else:
-        user_message = user_prompt
+    full_messages = [{"role": "system", "content": SYSTEM_PROMPT}] + messages
 
     request_body = {
         "model": "anthropic/claude-sonnet-4-20250514",
-        "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": user_message},
-        ],
+        "messages": full_messages,
         "temperature": 0.7,
         "max_tokens": 4096,
     }
 
-    print(f"[generator] Calling Dedalus Labs API — model={request_body['model']}")
-    print(f"[generator] User message: {user_message}")
+    print(f"[generator] Calling Dedalus Labs API — model={request_body['model']}, {len(messages)} message(s)")
+    print(f"[generator] Latest user message: {messages[-1]['content']}")
 
     async with httpx.AsyncClient(timeout=60.0) as client:
         response = await client.post(
@@ -62,7 +57,6 @@ async def generate_ui(url: str, user_prompt: str) -> str:
     # Strip markdown fences if the model included them despite instructions
     if code.startswith("```"):
         lines = code.split("\n")
-        # Remove first line (```jsx or ```) and last line (```)
         lines = lines[1:]
         if lines and lines[-1].strip() == "```":
             lines = lines[:-1]
