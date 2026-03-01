@@ -286,13 +286,25 @@ export function AppPage() {
               {generatingFromPrompt ? (
                 <AgentLoader phases={UI_PROMPT_PHASES} currentPhase={uiLoaderPhase} />
               ) : (
-                <button
-                  type="submit"
-                  disabled={!uiPrompt.trim()}
-                  className="w-full rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition hover:bg-accent/90 disabled:opacity-50 disabled:pointer-events-none"
-                >
-                  Generate dashboard →
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setView('detail')
+                      setUiPrompt('')
+                    }}
+                    className="rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-muted"
+                  >
+                    ← Back to tasks
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={!uiPrompt.trim()}
+                    className="flex-1 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition hover:bg-accent/90 disabled:opacity-50 disabled:pointer-events-none"
+                  >
+                    Generate dashboard →
+                  </button>
+                </div>
               )}
             </form>
           </>
