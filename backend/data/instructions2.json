@@ -1,0 +1,80 @@
+{
+  "get_hn_top_stories": {
+    "name": "get_hn_top_stories",
+    "description": "Fetch top stories from Hacker News front page (no auth)",
+    "instructions": "Navigate to https://news.ycombinator.com/. Extract the top 10 stories from the front page. For each story, collect title, url, points, author, comments_count, and rank. Return only valid JSON.",
+    "output_schema": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "points": {
+            "type": "integer"
+          },
+          "author": {
+            "type": "string"
+          },
+          "comments_count": {
+            "type": "integer"
+          },
+          "rank": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "title",
+          "url",
+          "points",
+          "author",
+          "comments_count",
+          "rank"
+        ]
+      }
+    },
+    "display_hint": "table",
+    "type": "data"
+  },
+  "get_github_trending": {
+    "name": "get_github_trending",
+    "description": "Fetch GitHub trending repositories (no auth)",
+    "instructions": "Navigate to https://github.com/trending. Extract the first 10 repositories shown. For each repository, collect name (owner/repo), description, language, stars, and stars_today. Return only valid JSON.",
+    "output_schema": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "stars": {
+            "type": "integer"
+          },
+          "stars_today": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "language",
+          "stars",
+          "stars_today"
+        ]
+      }
+    },
+    "display_hint": "card_list",
+    "type": "data"
+  }
+}
