@@ -63,6 +63,9 @@ export function ProfileGrid({ onSelectProfile, onNewProfile }: ProfileGridProps)
           <p className="text-xs text-muted-foreground">
             {profile.tool_count} tool{profile.tool_count !== 1 ? 's' : ''}
           </p>
+          <p className="mt-auto text-[10px] text-muted-foreground/50 font-mono truncate">
+            {profile.id}
+          </p>
         </button>
       ))}
     </div>

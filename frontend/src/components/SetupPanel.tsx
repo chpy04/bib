@@ -1,6 +1,7 @@
 import { useState } from "react";
 import * as api from "@/lib/api";
 import { AgentLoader } from "@/components/agent-loader";
+import { TaskReviewPanel } from "@/components/TaskReviewPanel";
 import type { TaskPlan, VerifiedTask } from "@/types";
 
 const DATA_PHASES = [
@@ -27,7 +28,7 @@ interface SetupPanelProps {
 }
 
 export function SetupPanel({ onComplete }: SetupPanelProps) {
-  const [step, setStep] = useState<"url" | "data" | "ui">("url");
+  const [step, setStep] = useState<"url" | "data" | "review" | "ui">("url");
   const [url, setUrl] = useState("");
   const [dataPrompt, setDataPrompt] = useState("");
   const [uiPrompt, setUiPrompt] = useState("");
@@ -85,7 +86,7 @@ export function SetupPanel({ onComplete }: SetupPanelProps) {
 
       setProfileId(profile_id);
       setVerifiedTasks(tasks);
-      setStep("ui");
+      setStep("review");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -221,6 +222,20 @@ export function SetupPanel({ onComplete }: SetupPanelProps) {
           Plan & verify data →
         </button>
       </form>
+    );
+  }
+
+  if (step === "review") {
+    return (
+      <TaskReviewPanel
+        tasks={verifiedTasks}
+        profileId={profileId}
+        url={url}
+        onContinue={(updatedTasks) => {
+          setVerifiedTasks(updatedTasks);
+          setStep("ui");
+        }}
+      />
     );
   }
 
