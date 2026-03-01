@@ -1,4 +1,4 @@
-export type Phase = 'auth' | 'prompt' | 'planning' | 'verifying' | 'generating' | 'display';
+export type Phase = 'auth' | 'prompt' | 'planning' | 'verifying' | 'reviewed' | 'generating' | 'display';
 
 export interface Task {
   id: string;

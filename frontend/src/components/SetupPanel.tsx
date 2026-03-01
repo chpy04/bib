@@ -20,6 +20,8 @@ export function SetupPanel({ onComplete }: SetupPanelProps) {
   const [statusMsg, setStatusMsg] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [verifiedTasks, setVerifiedTasks] = useState<VerifiedTask[]>([])
+  const [layoutHint, setLayoutHint] = useState('')
 
   async function handleAuth(e: React.FormEvent) {
     e.preventDefault()
@@ -54,18 +56,16 @@ export function SetupPanel({ onComplete }: SetupPanelProps) {
       // Step 2: Verify
       setPhase('verifying')
       setStatusMsg(`Verifying ${plan.tasks.length} task(s) with browser agent…`)
-      const verifiedTasks: VerifiedTask[] = await api.verifyTasks(url.trim(), plan.tasks)
+      const tasks: VerifiedTask[] = await api.verifyTasks(url.trim(), plan.tasks)
 
-      if (verifiedTasks.length === 0) {
+      if (tasks.length === 0) {
         throw new Error('No tasks could be verified. Try a more specific prompt.')
       }
 
-      // Step 3: Generate
-      setPhase('generating')
-      setStatusMsg(PHASE_LABELS.generating)
-      const { component_code } = await api.generateUI(verifiedTasks, plan.layout_hint)
-
-      onComplete(component_code, verifiedTasks, plan.layout_hint)
+      // Stop here — let the user review before generating
+      setVerifiedTasks(tasks)
+      setLayoutHint(plan.layout_hint)
+      setPhase('reviewed')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
       setPhase('prompt')
@@ -73,6 +73,73 @@ export function SetupPanel({ onComplete }: SetupPanelProps) {
       setLoading(false)
       setStatusMsg('')
     }
+  }
+
+  async function handleGenerate() {
+    setError(null)
+    setLoading(true)
+    try {
+      setPhase('generating')
+      setStatusMsg(PHASE_LABELS.generating)
+      const { component_code } = await api.generateUI(verifiedTasks, layoutHint)
+      onComplete(component_code, verifiedTasks, layoutHint)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong')
+      setPhase('reviewed')
+    } finally {
+      setLoading(false)
+      setStatusMsg('')
+    }
+  }
+
+  if (phase === 'reviewed' && !loading) {
+    return (
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-sm font-medium text-foreground mb-3">
+            Discovered {verifiedTasks.length} task{verifiedTasks.length !== 1 ? 's' : ''}
+          </h2>
+          <ul className="space-y-2">
+            {verifiedTasks.map((task) => (
+              <li
+                key={task.id}
+                className="rounded-lg border border-border bg-card px-4 py-3"
+              >
+                <p className="text-sm font-medium text-foreground">{task.description}</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {task.display_hint} &middot; {task.type}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {error && (
+          <p className="rounded-lg bg-destructive/10 px-4 py-2.5 text-sm text-destructive">
+            {error}
+          </p>
+        )}
+
+        <div className="flex gap-3">
+          <button
+            onClick={() => {
+              setVerifiedTasks([])
+              setLayoutHint('')
+              setPhase('prompt')
+            }}
+            className="flex-1 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-card"
+          >
+            Back
+          </button>
+          <button
+            onClick={handleGenerate}
+            className="flex-1 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition hover:bg-accent/90"
+          >
+            Generate dashboard &rarr;
+          </button>
+        </div>
+      </div>
+    )
   }
 
   if (step === 'url') {
@@ -91,6 +158,18 @@ export function SetupPanel({ onComplete }: SetupPanelProps) {
             autoFocus
             className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
           />
+          <div className="mt-2 flex gap-2">
+            {['https://console.aws.amazon.com', 'https://github.com', 'https://news.ycombinator.com'].map((site) => (
+              <button
+                key={site}
+                type="button"
+                onClick={() => setUrl(site)}
+                className="rounded-md border border-border bg-card px-2.5 py-1 text-xs text-muted-foreground transition hover:text-foreground hover:border-foreground/20"
+              >
+                {new URL(site).hostname.replace('www.', '')}
+              </button>
+            ))}
+          </div>
           <p className="mt-1.5 text-xs text-muted-foreground">
             A browser window will open so you can log in manually before the agent runs.
           </p>
