@@ -53,10 +53,22 @@ class VerifiedTask(BaseModel):
 class GenerateUIRequest(BaseModel):
     verified_tasks: list[VerifiedTask]
     layout_hint: str
+    profile_id: str
+    url: str = ""
+    prompt: str = ""
 
 
 class GenerateUIResponse(BaseModel):
     component_code: str
+
+
+class RefineUIRequest(BaseModel):
+    verified_tasks: list[VerifiedTask]
+    layout_hint: str
+    current_code: str
+    chat_history: list[str]   # all previous user messages (original prompt + refinements)
+    refinement: str           # the new refinement request
+    profile_id: str
 
 
 # ── Runtime data / action ─────────────────────────────────────────────────────
@@ -72,3 +84,30 @@ class ActionResponse(BaseModel):
     success: bool
     data: Optional[dict[str, Any]] = None
     error: Optional[str] = None
+
+
+class VerifyTasksResponse(BaseModel):
+    profile_id: str
+    verified_tasks: list[VerifiedTask]
+
+
+# ── Dashboards ───────────────────────────────────────────────────────────────
+
+class DashboardSummary(BaseModel):
+    profile_id: str
+    name: str
+    url: str
+    prompt: str
+    created_at: str
+
+
+class DashboardDetail(BaseModel):
+    profile_id: str
+    name: str
+    url: str
+    prompt: str
+    created_at: str
+    component_code: str
+    verified_tasks: list[VerifiedTask]
+    layout_hint: str
+    chat_history: list[str]

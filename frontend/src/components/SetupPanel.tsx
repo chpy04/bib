@@ -1,148 +1,84 @@
-import { useState } from 'react'
-import * as api from '@/lib/api'
-import type { Phase, TaskPlan, VerifiedTask } from '@/types'
+import { useState } from "react";
+import * as api from "@/lib/api";
+import type { TaskPlan, VerifiedTask } from "@/types";
 
 interface SetupPanelProps {
-  onComplete: (code: string, verifiedTasks: VerifiedTask[], layoutHint: string) => void
-}
-
-const PHASE_LABELS: Record<string, string> = {
-  planning: 'Planning tasks…',
-  verifying: 'Verifying tasks with browser agent…',
-  generating: 'Generating UI…',
+  onComplete: (
+    code: string,
+    verifiedTasks: VerifiedTask[],
+    layoutHint: string,
+    profileId: string,
+  ) => void;
 }
 
 export function SetupPanel({ onComplete }: SetupPanelProps) {
-  const [step, setStep] = useState<'url' | 'prompt'>('url')
-  const [url, setUrl] = useState('')
-  const [prompt, setPrompt] = useState('')
-  const [phase, setPhase] = useState<Phase>('auth')
-  const [statusMsg, setStatusMsg] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [verifiedTasks, setVerifiedTasks] = useState<VerifiedTask[]>([])
-  const [layoutHint, setLayoutHint] = useState('')
+  const [step, setStep] = useState<"url" | "prompt">("url");
+  const [url, setUrl] = useState("");
+  const [prompt, setPrompt] = useState("");
+  const [statusMsg, setStatusMsg] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   async function handleAuth(e: React.FormEvent) {
-    e.preventDefault()
-    if (!url.trim()) return
-    setError(null)
-    setLoading(true)
-    setStatusMsg('Opening browser…')
+    e.preventDefault();
+    if (!url.trim()) return;
+    setError(null);
+    setLoading(true);
+    setStatusMsg("Opening browser…");
     try {
-      await api.startAuth(url.trim())
-      setStep('prompt')
-      setPhase('prompt')
-      setStatusMsg('')
+      await api.startAuth(url.trim());
+      setStep("prompt");
+      setStatusMsg("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to open browser')
+      setError(err instanceof Error ? err.message : "Failed to open browser");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   async function handlePrompt(e: React.FormEvent) {
-    e.preventDefault()
-    if (!prompt.trim()) return
-    setError(null)
-    setLoading(true)
+    e.preventDefault();
+    if (!prompt.trim()) return;
+    setError(null);
+    setLoading(true);
 
     try {
-      // Step 1: Plan
-      setPhase('planning')
-      setStatusMsg(PHASE_LABELS.planning)
-      const plan: TaskPlan = await api.planTasks(url.trim(), prompt.trim())
+      setStatusMsg("Planning tasks…");
+      const plan: TaskPlan = await api.planTasks(url.trim(), prompt.trim());
 
-      // Step 2: Verify
-      setPhase('verifying')
-      setStatusMsg(`Verifying ${plan.tasks.length} task(s) with browser agent…`)
-      const tasks: VerifiedTask[] = await api.verifyTasks(url.trim(), plan.tasks)
+      setStatusMsg(
+        `Verifying ${plan.tasks.length} task(s) with browser agent…`,
+      );
+      const { profile_id, verified_tasks: tasks } = await api.verifyTasks(
+        url.trim(),
+        plan.tasks,
+      );
 
       if (tasks.length === 0) {
-        throw new Error('No tasks could be verified. Try a more specific prompt.')
+        throw new Error(
+          "No tasks could be verified. Try a more specific prompt.",
+        );
       }
 
-      // Stop here — let the user review before generating
-      setVerifiedTasks(tasks)
-      setLayoutHint(plan.layout_hint)
-      setPhase('reviewed')
+      setStatusMsg("Generating dashboard UI…");
+      const { component_code } = await api.generateUI(
+        tasks,
+        plan.layout_hint,
+        profile_id,
+        url.trim(),
+        prompt.trim(),
+      );
+
+      onComplete(component_code, tasks, plan.layout_hint, profile_id);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
-      setPhase('prompt')
+      setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
-      setLoading(false)
-      setStatusMsg('')
+      setLoading(false);
+      setStatusMsg("");
     }
   }
 
-  async function handleGenerate() {
-    setError(null)
-    setLoading(true)
-    try {
-      setPhase('generating')
-      setStatusMsg(PHASE_LABELS.generating)
-      const { component_code } = await api.generateUI(verifiedTasks, layoutHint)
-      onComplete(component_code, verifiedTasks, layoutHint)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
-      setPhase('reviewed')
-    } finally {
-      setLoading(false)
-      setStatusMsg('')
-    }
-  }
-
-  if (phase === 'reviewed' && !loading) {
-    return (
-      <div className="space-y-4">
-        <div>
-          <h2 className="text-sm font-medium text-foreground mb-3">
-            Discovered {verifiedTasks.length} task{verifiedTasks.length !== 1 ? 's' : ''}
-          </h2>
-          <ul className="space-y-2">
-            {verifiedTasks.map((task) => (
-              <li
-                key={task.id}
-                className="rounded-lg border border-border bg-card px-4 py-3"
-              >
-                <p className="text-sm font-medium text-foreground">{task.description}</p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {task.display_hint} &middot; {task.type}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {error && (
-          <p className="rounded-lg bg-destructive/10 px-4 py-2.5 text-sm text-destructive">
-            {error}
-          </p>
-        )}
-
-        <div className="flex gap-3">
-          <button
-            onClick={() => {
-              setVerifiedTasks([])
-              setLayoutHint('')
-              setPhase('prompt')
-            }}
-            className="flex-1 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-card"
-          >
-            Back
-          </button>
-          <button
-            onClick={handleGenerate}
-            className="flex-1 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition hover:bg-accent/90"
-          >
-            Generate dashboard &rarr;
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  if (step === 'url') {
+  if (step === "url") {
     return (
       <form onSubmit={handleAuth} className="space-y-4">
         <div>
@@ -159,19 +95,24 @@ export function SetupPanel({ onComplete }: SetupPanelProps) {
             className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
           />
           <div className="mt-2 flex gap-2">
-            {['https://console.aws.amazon.com', 'https://github.com', 'https://news.ycombinator.com'].map((site) => (
+            {[
+              "https://console.aws.amazon.com",
+              "https://github.com",
+              "https://news.ycombinator.com",
+            ].map((site) => (
               <button
                 key={site}
                 type="button"
                 onClick={() => setUrl(site)}
                 className="rounded-md border border-border bg-card px-2.5 py-1 text-xs text-muted-foreground transition hover:text-foreground hover:border-foreground/20"
               >
-                {new URL(site).hostname.replace('www.', '')}
+                {new URL(site).hostname.replace("www.", "")}
               </button>
             ))}
           </div>
           <p className="mt-1.5 text-xs text-muted-foreground">
-            A browser window will open so you can log in manually before the agent runs.
+            A browser window will open so you can log in manually before the
+            agent runs.
           </p>
         </div>
 
@@ -186,10 +127,12 @@ export function SetupPanel({ onComplete }: SetupPanelProps) {
           disabled={loading || !url.trim()}
           className="w-full rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition hover:bg-accent/90 disabled:opacity-50 disabled:pointer-events-none"
         >
-          {loading ? statusMsg || 'Opening browser…' : 'Open browser to log in →'}
+          {loading
+            ? statusMsg || "Opening browser…"
+            : "Open browser to log in →"}
         </button>
       </form>
-    )
+    );
   }
 
   return (
@@ -239,8 +182,8 @@ export function SetupPanel({ onComplete }: SetupPanelProps) {
         disabled={loading || !prompt.trim()}
         className="w-full rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition hover:bg-accent/90 disabled:opacity-50 disabled:pointer-events-none"
       >
-        {loading ? 'Working…' : 'Generate dashboard →'}
+        {loading ? "Working…" : "Create profile →"}
       </button>
     </form>
-  )
+  );
 }

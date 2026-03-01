@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     browser_use_api_key: str = ""
     anthropic_model: str = "claude-sonnet-4-6"
-    instructions_file: Path = Path(__file__).parent.parent / "data" / "instructions.json"
+    profiles_dir: Path = Path(__file__).parent.parent / "profiles"
 
     class Config:
         env_file = ".env"

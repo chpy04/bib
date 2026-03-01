@@ -6,14 +6,28 @@ import type { VerifiedTask } from '@/types'
 interface GeneratedUIProps {
   componentCode: string
   verifiedTasks: VerifiedTask[]
+  layoutHint: string
+  chatHistory: string[]
+  onCodeUpdate: (newCode: string, refinementMessage: string) => void
+  profileId: string
 }
 
-export function GeneratedUI({ componentCode, verifiedTasks }: GeneratedUIProps) {
+export function GeneratedUI({
+  componentCode,
+  verifiedTasks,
+  layoutHint,
+  chatHistory,
+  onCodeUpdate,
+  profileId,
+}: GeneratedUIProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const shellWrittenRef = useRef(false)
   const [shellReady, setShellReady] = useState(false)
   const [iframeHeight, setIframeHeight] = useState(400)
   const [fetchError, setFetchError] = useState<string | null>(null)
+  const [refinement, setRefinement] = useState('')
+  const [refining, setRefining] = useState(false)
+  const [refineError, setRefineError] = useState<string | null>(null)
 
   // Write the shell HTML into the iframe once on mount
   useEffect(() => {
@@ -61,7 +75,7 @@ export function GeneratedUI({ componentCode, verifiedTasks }: GeneratedUIProps) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [verifiedTasks])
 
-  // When shell is ready, send the component + initial sample data
+  // When shell is ready or component code changes, send it to the iframe
   useEffect(() => {
     if (!shellReady || !componentCode) return
 
@@ -91,17 +105,18 @@ export function GeneratedUI({ componentCode, verifiedTasks }: GeneratedUIProps) 
     const dataTasks = verifiedTasks.filter((t) => t.type === 'data')
     if (dataTasks.length === 0) return
 
-    const results = await Promise.allSettled(dataTasks.map((t) => api.getData(t.id)))
+    const results = await Promise.allSettled(dataTasks.map((t) => api.getData(t.id, profileId)))
 
     const freshData: Record<string, unknown> = {}
-    for (let i = 0; i < dataTasks.length; i++) {
-      const result = results[i]
+    results.forEach((result, i) => {
+      const task = dataTasks[i]
+      if (!task) return
       if (result.status === 'fulfilled' && result.value?.success) {
-        freshData[dataTasks[i].id] = result.value.data
+        freshData[task.id] = result.value.data
       } else if (result.status === 'rejected') {
-        setFetchError(`Failed to fetch ${dataTasks[i].id}: ${result.reason?.message}`)
+        setFetchError(`Failed to fetch ${task.id}: ${result.reason?.message}`)
       }
-    }
+    })
 
     if (Object.keys(freshData).length > 0) {
       postToIframe({ type: 'DATA_UPDATE', data: freshData })
@@ -110,12 +125,38 @@ export function GeneratedUI({ componentCode, verifiedTasks }: GeneratedUIProps) 
 
   async function handleAction(instructionName: string) {
     try {
-      const result = await api.executeAction(instructionName)
+      const result = await api.executeAction(instructionName, profileId)
       if (result.success && result.data && Object.keys(result.data).length > 0) {
         postToIframe({ type: 'DATA_UPDATE', data: result.data })
       }
     } catch (err) {
       console.error('[GeneratedUI] Action failed:', err)
+    }
+  }
+
+  async function handleRefine(e: React.FormEvent) {
+    e.preventDefault()
+    const message = refinement.trim()
+    if (!message) return
+
+    setRefining(true)
+    setRefineError(null)
+
+    try {
+      const { component_code } = await api.refineUI(
+        verifiedTasks,
+        layoutHint,
+        componentCode,
+        chatHistory,
+        message,
+        profileId,
+      )
+      setRefinement('')
+      onCodeUpdate(component_code, message)
+    } catch (err) {
+      setRefineError(err instanceof Error ? err.message : 'Refinement failed')
+    } finally {
+      setRefining(false)
     }
   }
 
@@ -130,6 +171,27 @@ export function GeneratedUI({ componentCode, verifiedTasks }: GeneratedUIProps) 
       />
       {fetchError && (
         <p className="mt-2 text-xs text-destructive">{fetchError}</p>
+      )}
+
+      <form onSubmit={handleRefine} className="mt-4 flex gap-2">
+        <input
+          type="text"
+          value={refinement}
+          onChange={(e) => setRefinement(e.target.value)}
+          placeholder="Request changes to the UI..."
+          disabled={refining}
+          className="flex-1 rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:opacity-60"
+        />
+        <button
+          type="submit"
+          disabled={refining || !refinement.trim()}
+          className="rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition hover:bg-accent/90 disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
+        >
+          {refining ? 'Refining...' : 'Refine'}
+        </button>
+      </form>
+      {refineError && (
+        <p className="mt-2 text-xs text-destructive">{refineError}</p>
       )}
     </div>
   )
