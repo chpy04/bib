@@ -1,11 +1,19 @@
-export default function StatusBar({ status, profileName, onBack }) {
-  const colors = {
-    connected: 'bg-green-500',
-    disconnected: 'bg-gray-500',
-    error: 'bg-red-500',
-    running: 'bg-yellow-500',
-  };
+import type { ConnectionStatus } from '../types';
 
+interface Props {
+  status: ConnectionStatus;
+  profileName: string | null;
+  onBack: () => void;
+}
+
+const colors: Record<ConnectionStatus, string> = {
+  connected: 'bg-green-500',
+  disconnected: 'bg-gray-500',
+  error: 'bg-red-500',
+  running: 'bg-yellow-500',
+};
+
+export default function StatusBar({ status, profileName, onBack }: Props) {
   return (
     <div className="flex items-center justify-between p-3 bg-gray-900 border-b border-gray-800">
       <button

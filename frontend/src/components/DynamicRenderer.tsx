@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
 
-export default function DynamicRenderer({ componentCode, data }) {
-  const [Component, setComponent] = useState(null);
-  const [error, setError] = useState(null);
+interface Props {
+  componentCode: string | null | undefined;
+  data: Record<string, unknown> | null;
+}
+
+export default function DynamicRenderer({ componentCode, data }: Props) {
+  const [Component, setComponent] = useState<React.ComponentType<{ data: Record<string, unknown> | null }> | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!componentCode) return;
@@ -16,13 +21,14 @@ export default function DynamicRenderer({ componentCode, data }) {
         const { useState, useEffect, useMemo, useCallback, Fragment } = React;
         ${clean.replace(/^export default /, 'return ')}
       `;
+      // eslint-disable-next-line no-new-func
       const factory = new Function('React', wrapped);
       const Comp = factory(React);
       setComponent(() => Comp);
       setError(null);
     } catch (err) {
       console.error('Failed to compile component:', err);
-      setError(err.message);
+      setError(err instanceof Error ? err.message : String(err));
     }
   }, [componentCode]);
 

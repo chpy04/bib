@@ -1,6 +1,11 @@
 import { useState } from 'react';
 
-export default function ProfileCreator({ onSubmit, onCancel }) {
+interface Props {
+  onSubmit: (url: string, request: string) => void;
+  onCancel: () => void;
+}
+
+export default function ProfileCreator({ onSubmit, onCancel }: Props) {
   const [url, setUrl] = useState('');
   const [request, setRequest] = useState('');
 

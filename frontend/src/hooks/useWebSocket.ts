@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { getWsUrl } from '../lib/api';
+import type { ConnectionStatus, WSMessage } from '../types';
 
-export function useWebSocket(profileId) {
-  const [data, setData] = useState(null);
-  const [status, setStatus] = useState('disconnected');
-  const wsRef = useRef(null);
+export function useWebSocket(profileId: string | null) {
+  const [data, setData] = useState<Record<string, unknown> | null>(null);
+  const [status, setStatus] = useState<ConnectionStatus>('disconnected');
+  const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
     if (!profileId) return;
@@ -16,15 +17,15 @@ export function useWebSocket(profileId) {
     ws.onclose = () => setStatus('disconnected');
     ws.onerror = () => setStatus('error');
     ws.onmessage = (event) => {
-      const msg = JSON.parse(event.data);
-      if (msg.type === 'state_update') setData(msg.data);
-      if (msg.type === 'fetch_status') setStatus(msg.status);
+      const msg: WSMessage = JSON.parse(event.data);
+      if (msg.type === 'state_update') setData(msg.data ?? null);
+      if (msg.type === 'fetch_status' && msg.status) setStatus(msg.status);
     };
 
     return () => ws.close();
   }, [profileId]);
 
-  const send = useCallback((msg) => {
+  const send = useCallback((msg: Record<string, unknown>) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify(msg));
     }

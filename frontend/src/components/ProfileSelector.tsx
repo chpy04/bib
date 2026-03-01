@@ -1,4 +1,12 @@
-export default function ProfileSelector({ profiles, onSelect, onCreate }) {
+import type { Profile } from '../types';
+
+interface Props {
+  profiles: Profile[];
+  onSelect: (profileId: string) => void;
+  onCreate: () => void;
+}
+
+export default function ProfileSelector({ profiles, onSelect, onCreate }: Props) {
   return (
     <div className="max-w-2xl mx-auto p-8">
       <h1 className="text-3xl font-bold mb-6">Browser in Browser</h1>
