@@ -27,4 +27,6 @@ class TaskDecomposer:
         ])
 
         logger.info("Decomposed into %d tasks", len(result.tasks))
+        for i, task in enumerate(result.tasks, 1):
+            logger.info("  Task %d: [%s] %s – %s", i, task.type, task.name, task.description)
         return result
