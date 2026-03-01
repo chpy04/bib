@@ -1,25 +1,29 @@
-export interface Profile {
-  profile_id: string;
-  url: string;
+export type Phase = 'auth' | 'prompt' | 'planning' | 'verifying' | 'generating' | 'display';
+
+export interface Task {
+  id: string;
+  description: string;
+  output_schema: Record<string, unknown>;
+  display_hint: string;
+  type: 'data' | 'action';
+}
+
+export interface TaskPlan {
+  tasks: Task[];
+  layout_hint: string;
+}
+
+export interface VerifiedTask extends Task {
+  instructions: string;
+  sample_output: unknown;
+}
+
+export interface Instruction {
   name: string;
   description: string;
-  component_code: string | null;
-}
-
-export interface CreateProfileResponse {
-  profile_id: string;
-  status: string;
-}
-
-export interface ComponentResponse {
-  component_code: string | null;
-  status: string;
-}
-
-export type ConnectionStatus = 'connected' | 'disconnected' | 'error' | 'running';
-
-export interface WSMessage {
-  type: string;
-  data?: Record<string, unknown>;
-  status?: ConnectionStatus;
+  instructions: string;
+  output_schema: Record<string, unknown>;
+  sample_output: unknown;
+  display_hint: string;
+  type: 'data' | 'action';
 }

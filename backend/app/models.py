@@ -1,34 +1,74 @@
-from pydantic import BaseModel, Field
-from typing import Any
+from __future__ import annotations
+
+from typing import Any, Optional
+
+from pydantic import BaseModel
 
 
-class FetcherDef(BaseModel):
+# ── Auth ─────────────────────────────────────────────────────────────────────
+
+class StartAuthRequest(BaseModel):
+    url: str
+
+
+# ── Task planning ─────────────────────────────────────────────────────────────
+
+class PlanTasksRequest(BaseModel):
+    url: str
+    prompt: str
+
+
+class Task(BaseModel):
     id: str
-    type: str  # "javascript" or "agent_task"
     description: str
-    code: str | None = None            # For JS fetchers
-    task_template: str | None = None   # For agent fetchers
-    target_field: str
+    output_schema: dict[str, Any]   # JSON Schema object
+    display_hint: str               # "card_list" | "table" | "value" | "button"
+    type: str                       # "data" | "action"
 
 
-class ProfileConfig(BaseModel):
-    profile_id: str
+class TaskPlan(BaseModel):
+    tasks: list[Task]
+    layout_hint: str
+
+
+# ── Task verification ─────────────────────────────────────────────────────────
+
+class VerifyTasksRequest(BaseModel):
     url: str
-    name: str
+    tasks: list[Task]
+
+
+class VerifiedTask(BaseModel):
+    id: str
     description: str
-    data_schema: dict[str, Any] = Field(alias="schema")  # JSON Schema for the data shape
-    fetchers: list[FetcherDef] = []
-    component_code: str | None = None  # Generated React component as string
-
-
-class CreateProfileRequest(BaseModel):
-    url: str
-    request: str  # Natural language description of what user wants
-
-
-class WSMessage(BaseModel):
+    output_schema: dict[str, Any]
+    display_hint: str
     type: str
-    data: dict[str, Any] | None = None
-    interval: float | None = None
-    action: dict[str, Any] | None = None
-    message: str | None = None
+    instructions: str        # step-by-step instructions from agent action history
+    sample_output: Any
+
+
+# ── UI generation ─────────────────────────────────────────────────────────────
+
+class GenerateUIRequest(BaseModel):
+    verified_tasks: list[VerifiedTask]
+    layout_hint: str
+
+
+class GenerateUIResponse(BaseModel):
+    component_code: str
+
+
+# ── Runtime data / action ─────────────────────────────────────────────────────
+
+class DataResponse(BaseModel):
+    instruction_name: str
+    data: Any
+    success: bool
+    error: Optional[str] = None
+
+
+class ActionResponse(BaseModel):
+    success: bool
+    data: Optional[dict[str, Any]] = None
+    error: Optional[str] = None
