@@ -55,7 +55,7 @@ export default function App() {
             onBack={() => { setActiveProfileId(null); setView('select'); }}
           />
           <DynamicRenderer
-            componentCode={activeProfile?.component_code}
+            componentCode={null}
             data={data}
           />
         </>
