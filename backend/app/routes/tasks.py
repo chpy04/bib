@@ -72,9 +72,11 @@ async def verify(req: VerifyTasksRequest) -> VerifyTasksResponse:
                 "sample_output": task.sample_output,
                 "display_hint": task.display_hint,
                 "type": task.type,
+                "scraping_cells": task.scraping_cells,
+                "js_variables": task.js_variables,
             },
         )
-        if task.type == "data" and task.sample_output is not None:
+        if task.type == "data" and task.sample_output:
             save_cached_data(profile_id, task.id, task.sample_output)
 
     return VerifyTasksResponse(profile_id=profile_id, verified_tasks=verified)
