@@ -67,8 +67,11 @@ export default function App() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url, prompt }),
         });
-        if (!res.ok) throw new Error(res.statusText || 'Request failed');
-        const data = await res.json();
+        const data = await res.json().catch(() => null);
+        if (!res.ok) {
+          const detail = data?.detail || res.statusText || 'Request failed';
+          throw new Error(detail);
+        }
         const code = data?.componentCode ?? data?.component_code;
         if (typeof code !== 'string') throw new Error('Response missing componentCode string');
         setComponentCode(code);
