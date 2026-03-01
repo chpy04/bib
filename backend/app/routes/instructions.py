@@ -5,7 +5,7 @@ router = APIRouter()
 
 
 @router.get("/instructions")
-async def list_instructions():
+async def list_instructions() -> dict:
     """List all available instructions."""
     try:
         return load_registry()
@@ -16,7 +16,7 @@ async def list_instructions():
 
 
 @router.get("/data/{instruction_name}")
-async def execute_instruction(instruction_name: str):
+async def execute_instruction(instruction_name: str) -> dict:
     """Execute an instruction and return data."""
     try:
         return await run_instruction(instruction_name)

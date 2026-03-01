@@ -3,7 +3,8 @@ from pathlib import Path
 
 from app.config import settings
 from browser_use import Agent, Browser
-from browser_use.llm import ChatOpenAI, ChatAnthropic
+from browser_use.llm.openai.chat import ChatOpenAI
+from browser_use.llm.anthropic.chat import ChatAnthropic
 
 
 def load_registry() -> dict:
@@ -17,7 +18,7 @@ def get_instruction(name: str) -> dict:
     return registry[name]
 
 
-def create_llm():
+def create_llm() -> ChatOpenAI | ChatAnthropic:
     if settings.llm_provider == "anthropic":
         return ChatAnthropic(
             model="claude-sonnet-4-20250514",
