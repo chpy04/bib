@@ -4,14 +4,15 @@ from typing import Any, Optional
 
 from pydantic import BaseModel
 
-
 # ── Auth ─────────────────────────────────────────────────────────────────────
+
 
 class StartAuthRequest(BaseModel):
     url: str
 
 
 # ── Task planning ─────────────────────────────────────────────────────────────
+
 
 class PlanTasksRequest(BaseModel):
     url: str
@@ -21,9 +22,9 @@ class PlanTasksRequest(BaseModel):
 class Task(BaseModel):
     id: str
     description: str
-    output_schema: dict[str, Any]   # JSON Schema object
-    display_hint: str               # "card_list" | "table" | "value" | "button"
-    type: str                       # "data" | "action"
+    output_schema: dict[str, Any]  # JSON Schema object
+    display_hint: str  # "card_list" | "table" | "value" | "button"
+    type: str  # "data" | "action"
 
 
 class TaskPlan(BaseModel):
@@ -33,9 +34,11 @@ class TaskPlan(BaseModel):
 
 # ── Task verification ─────────────────────────────────────────────────────────
 
+
 class VerifyTasksRequest(BaseModel):
     url: str
     tasks: list[Task]
+    profile_id: str
 
 
 class VerifiedTask(BaseModel):
@@ -44,11 +47,12 @@ class VerifiedTask(BaseModel):
     output_schema: dict[str, Any]
     display_hint: str
     type: str
-    instructions: str        # step-by-step instructions from agent action history
+    instructions: str  # step-by-step instructions from agent action history
     sample_output: Any
 
 
 # ── UI generation ─────────────────────────────────────────────────────────────
+
 
 class GenerateUIRequest(BaseModel):
     verified_tasks: list[VerifiedTask]
@@ -66,12 +70,15 @@ class RefineUIRequest(BaseModel):
     verified_tasks: list[VerifiedTask]
     layout_hint: str
     current_code: str
-    chat_history: list[str]   # all previous user messages (original prompt + refinements)
-    refinement: str           # the new refinement request
+    chat_history: list[
+        str
+    ]  # all previous user messages (original prompt + refinements)
+    refinement: str  # the new refinement request
     profile_id: str
 
 
 # ── Runtime data / action ─────────────────────────────────────────────────────
+
 
 class DataResponse(BaseModel):
     instruction_name: str
@@ -92,6 +99,7 @@ class VerifyTasksResponse(BaseModel):
 
 
 # ── Dashboards ───────────────────────────────────────────────────────────────
+
 
 class DashboardSummary(BaseModel):
     profile_id: str

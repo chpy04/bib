@@ -31,23 +31,25 @@ def _make_anthropic_llm() -> ChatAnthropic:
     )
 
 
-async def _make_browser() -> Browser:
+async def _make_browser(profile_id: str) -> Browser:
     """Create a fresh BrowserSession for a single agent run.
 
     Before creating the agent browser, snapshot the live auth browser's current
     cookies to disk so the agent inherits the authenticated session — no explicit
     'save auth' step required from the user.
     """
-    from app.browser import AUTH_STATE_PATH, _browser as auth_browser
+    from app.browser import auth_state_path, _browser as auth_browser
+
+    state_path = auth_state_path(profile_id)
 
     if auth_browser is not None:
         try:
-            await auth_browser.export_storage_state(AUTH_STATE_PATH)
+            await auth_browser.export_storage_state(state_path)
             logger.debug("Exported auth state for agent use")
         except Exception as e:
             logger.debug("Could not export auth state: %s", e)
 
-    storage_state = str(AUTH_STATE_PATH) if AUTH_STATE_PATH.exists() else None
+    storage_state = str(state_path) if state_path.exists() else None
     return Browser(headless=False, storage_state=storage_state)
 
 
@@ -82,7 +84,7 @@ def _parse_result(raw: str) -> Any:
         return cleaned
 
 
-async def verify_task(task: Task, url: str) -> VerifiedTask | None:
+async def verify_task(task: Task, url: str, profile_id: str) -> VerifiedTask | None:
     """Run a Browser Use agent to verify a single task and capture sample data."""
     schema_json = json.dumps(task.output_schema, indent=2)
     task_prompt = (
@@ -92,7 +94,7 @@ async def verify_task(task: Task, url: str) -> VerifiedTask | None:
         "Do not include any explanatory text. Only return valid JSON."
     )
 
-    browser = await _make_browser()
+    browser = await _make_browser(profile_id)
     try:
         agent = Agent(
             task=task_prompt,
@@ -130,13 +132,13 @@ async def verify_task(task: Task, url: str) -> VerifiedTask | None:
     )
 
 
-async def verify_tasks(tasks: list[Task], url: str) -> list[VerifiedTask]:
+async def verify_tasks(tasks: list[Task], url: str, profile_id: str) -> list[VerifiedTask]:
     """Verify all tasks in parallel (up to MAX_CONCURRENT at once)."""
     semaphore = asyncio.Semaphore(MAX_CONCURRENT)
 
     async def _bounded(task: Task) -> VerifiedTask | None:
         async with semaphore:
-            return await verify_task(task, url)
+            return await verify_task(task, url, profile_id)
 
     results = await asyncio.gather(*[_bounded(t) for t in tasks], return_exceptions=True)
 
@@ -172,7 +174,7 @@ async def run_instruction(instruction_name: str, profile_id: str) -> dict[str, A
         "Do not include any explanatory text. Only return valid JSON."
     )
 
-    browser = await _make_browser()
+    browser = await _make_browser(profile_id)
     try:
         agent = Agent(
             task=task_prompt,

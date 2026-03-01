@@ -1,15 +1,15 @@
-import { useEffect, useRef, useState } from 'react'
-import { IFRAME_SHELL } from '@/lib/iframe-shell'
-import * as api from '@/lib/api'
-import type { VerifiedTask } from '@/types'
+import { useEffect, useRef, useState } from "react";
+import { IFRAME_SHELL } from "@/lib/iframe-shell";
+import * as api from "@/lib/api";
+import type { VerifiedTask } from "@/types";
 
 interface GeneratedUIProps {
-  componentCode: string
-  verifiedTasks: VerifiedTask[]
-  layoutHint: string
-  chatHistory: string[]
-  onCodeUpdate: (newCode: string, refinementMessage: string) => void
-  profileId: string
+  componentCode: string;
+  verifiedTasks: VerifiedTask[];
+  layoutHint: string;
+  chatHistory: string[];
+  onCodeUpdate: (newCode: string, refinementMessage: string) => void;
+  profileId: string;
 }
 
 export function GeneratedUI({
@@ -20,75 +20,75 @@ export function GeneratedUI({
   onCodeUpdate,
   profileId,
 }: GeneratedUIProps) {
-  const iframeRef = useRef<HTMLIFrameElement>(null)
-  const shellWrittenRef = useRef(false)
-  const [shellReady, setShellReady] = useState(false)
-  const [iframeHeight, setIframeHeight] = useState(400)
-  const [fetchError, setFetchError] = useState<string | null>(null)
-  const [refinement, setRefinement] = useState('')
-  const [refining, setRefining] = useState(false)
-  const [refineError, setRefineError] = useState<string | null>(null)
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const shellWrittenRef = useRef(false);
+  const [shellReady, setShellReady] = useState(false);
+  const [iframeHeight, setIframeHeight] = useState(400);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [refinement, setRefinement] = useState("");
+  const [refining, setRefining] = useState(false);
+  const [refineError, setRefineError] = useState<string | null>(null);
 
   // Write the shell HTML into the iframe once on mount
   useEffect(() => {
-    const iframe = iframeRef.current
-    if (!iframe || shellWrittenRef.current) return
-    shellWrittenRef.current = true
+    const iframe = iframeRef.current;
+    if (!iframe || shellWrittenRef.current) return;
+    shellWrittenRef.current = true;
 
-    const doc = iframe.contentDocument ?? iframe.contentWindow?.document
-    if (!doc) return
+    const doc = iframe.contentDocument ?? iframe.contentWindow?.document;
+    if (!doc) return;
 
-    doc.open()
-    doc.write(IFRAME_SHELL)
-    doc.close()
-  }, [])
+    doc.open();
+    doc.write(IFRAME_SHELL);
+    doc.close();
+  }, []);
 
   // Listen for postMessage events from the iframe
   useEffect(() => {
     function onMessage(event: MessageEvent) {
-      const msg = event.data
-      if (!msg?.type) return
+      const msg = event.data;
+      if (!msg?.type) return;
 
       switch (msg.type) {
-        case 'SHELL_READY':
-          setShellReady(true)
-          break
+        case "SHELL_READY":
+          setShellReady(true);
+          break;
 
-        case 'RESIZE':
-          if (typeof msg.height === 'number' && msg.height > 50) {
-            setIframeHeight(msg.height + 40)
+        case "RESIZE":
+          if (typeof msg.height === "number" && msg.height > 50) {
+            setIframeHeight(msg.height + 40);
           }
-          break
+          break;
 
-        case 'NAVIGATE':
-          if (msg.url) window.open(msg.url, '_blank', 'noopener,noreferrer')
-          break
+        case "NAVIGATE":
+          if (msg.url) window.open(msg.url, "_blank", "noopener,noreferrer");
+          break;
 
-        case 'ACTION':
-          if (msg.name) handleAction(msg.name)
-          break
+        case "ACTION":
+          if (msg.name) handleAction(msg.name);
+          break;
       }
     }
 
-    window.addEventListener('message', onMessage)
-    return () => window.removeEventListener('message', onMessage)
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [verifiedTasks])
+  }, [verifiedTasks]);
 
   // When shell is ready or component code changes, send it to the iframe
   useEffect(() => {
-    if (!shellReady || !componentCode) return
+    if (!shellReady || !componentCode) return;
 
-    const initialData = buildDataMap(verifiedTasks, (t) => t.sample_output)
-    postToIframe({ type: 'RENDER', code: componentCode, data: initialData })
+    const initialData = buildDataMap(verifiedTasks, (t) => t.sample_output);
+    postToIframe({ type: "RENDER", code: componentCode, data: initialData });
 
     // Fetch fresh data in background
-    fetchAllData()
+    fetchAllData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shellReady, componentCode])
+  }, [shellReady, componentCode]);
 
   function postToIframe(message: object) {
-    iframeRef.current?.contentWindow?.postMessage(message, '*')
+    iframeRef.current?.contentWindow?.postMessage(message, "*");
   }
 
   function buildDataMap(
@@ -96,51 +96,57 @@ export function GeneratedUI({
     getValue: (t: VerifiedTask) => unknown,
   ): Record<string, unknown> {
     return Object.fromEntries(
-      tasks.filter((t) => t.type === 'data').map((t) => [t.id, getValue(t)]),
-    )
+      tasks.filter((t) => t.type === "data").map((t) => [t.id, getValue(t)]),
+    );
   }
 
   async function fetchAllData() {
-    setFetchError(null)
-    const dataTasks = verifiedTasks.filter((t) => t.type === 'data')
-    if (dataTasks.length === 0) return
+    setFetchError(null);
+    const dataTasks = verifiedTasks.filter((t) => t.type === "data");
+    if (dataTasks.length === 0) return;
 
-    const results = await Promise.allSettled(dataTasks.map((t) => api.getData(t.id, profileId)))
+    const results = await Promise.allSettled(
+      dataTasks.map((t) => api.getData(t.id, profileId)),
+    );
 
-    const freshData: Record<string, unknown> = {}
+    const freshData: Record<string, unknown> = {};
     results.forEach((result, i) => {
-      const task = dataTasks[i]
-      if (!task) return
-      if (result.status === 'fulfilled' && result.value?.success) {
-        freshData[task.id] = result.value.data
-      } else if (result.status === 'rejected') {
-        setFetchError(`Failed to fetch ${task.id}: ${result.reason?.message}`)
+      const task = dataTasks[i];
+      if (!task) return;
+      if (result.status === "fulfilled" && result.value?.success) {
+        freshData[task.id] = result.value.data;
+      } else if (result.status === "rejected") {
+        setFetchError(`Failed to fetch ${task.id}: ${result.reason?.message}`);
       }
-    })
+    });
 
     if (Object.keys(freshData).length > 0) {
-      postToIframe({ type: 'DATA_UPDATE', data: freshData })
+      postToIframe({ type: "DATA_UPDATE", data: freshData });
     }
   }
 
   async function handleAction(instructionName: string) {
     try {
-      const result = await api.executeAction(instructionName, profileId)
-      if (result.success && result.data && Object.keys(result.data).length > 0) {
-        postToIframe({ type: 'DATA_UPDATE', data: result.data })
+      const result = await api.executeAction(instructionName, profileId);
+      if (
+        result.success &&
+        result.data &&
+        Object.keys(result.data).length > 0
+      ) {
+        postToIframe({ type: "DATA_UPDATE", data: result.data });
       }
     } catch (err) {
-      console.error('[GeneratedUI] Action failed:', err)
+      console.error("[GeneratedUI] Action failed:", err);
     }
   }
 
   async function handleRefine(e: React.FormEvent) {
-    e.preventDefault()
-    const message = refinement.trim()
-    if (!message) return
+    e.preventDefault();
+    const message = refinement.trim();
+    if (!message) return;
 
-    setRefining(true)
-    setRefineError(null)
+    setRefining(true);
+    setRefineError(null);
 
     try {
       const { component_code } = await api.refineUI(
@@ -150,13 +156,13 @@ export function GeneratedUI({
         chatHistory,
         message,
         profileId,
-      )
-      setRefinement('')
-      onCodeUpdate(component_code, message)
+      );
+      setRefinement("");
+      onCodeUpdate(component_code, message);
     } catch (err) {
-      setRefineError(err instanceof Error ? err.message : 'Refinement failed')
+      setRefineError(err instanceof Error ? err.message : "Refinement failed");
     } finally {
-      setRefining(false)
+      setRefining(false);
     }
   }
 
@@ -187,12 +193,12 @@ export function GeneratedUI({
           disabled={refining || !refinement.trim()}
           className="rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-accent-foreground transition hover:bg-accent/90 disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
         >
-          {refining ? 'Refining...' : 'Refine'}
+          {refining ? "Refining..." : "Refine"}
         </button>
       </form>
       {refineError && (
         <p className="mt-2 text-xs text-destructive">{refineError}</p>
       )}
     </div>
-  )
+  );
 }
