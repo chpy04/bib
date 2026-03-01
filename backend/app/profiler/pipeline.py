@@ -1,5 +1,6 @@
 import logging
 import uuid
+from pathlib import Path
 
 from app.profiler.decomposer import TaskDecomposer
 from app.profiler.discoverer import FlowDiscoverer
@@ -13,16 +14,24 @@ class ProfilerPipeline:
         self.decomposer = TaskDecomposer()
         self.discoverer = FlowDiscoverer()
 
-    async def run(self, url: str, user_request: str) -> SiteProfile:
+    async def run(
+        self,
+        url: str,
+        user_request: str,
+        storage_state: str | Path | None = None,
+        profile_id: str | None = None,
+    ) -> SiteProfile:
         logger.info("Starting profiler pipeline for %s", url)
 
         decomposed = await self.decomposer.decompose(url, user_request)
         logger.info("Decomposed into %d tasks", len(decomposed.tasks))
 
-        task_profiles = await self.discoverer.discover_all(url, decomposed.tasks)
+        task_profiles = await self.discoverer.discover_all(
+            url, decomposed.tasks, storage_state=storage_state
+        )
 
         profile = SiteProfile(
-            profile_id=str(uuid.uuid4()),
+            profile_id=profile_id or str(uuid.uuid4()),
             base_url=url,
             name=f"Profile for {url}",
             description=user_request,

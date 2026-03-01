@@ -21,6 +21,7 @@ export interface Profile {
   name: string;
   description: string;
   tasks: TaskProfile[];
+  auth_configured: boolean;
 }
 
 export type ConnectionStatus = 'connected' | 'disconnected' | 'error' | 'running';

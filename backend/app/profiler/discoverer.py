@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from pathlib import Path
 
 from browser_use import Agent, Browser, ChatAnthropic
 
@@ -27,9 +28,12 @@ class FlowDiscoverer:
         self._semaphore = asyncio.Semaphore(MAX_CONCURRENT)
 
     async def discover_all(
-        self, url: str, tasks: list[DecomposedTask]
+        self,
+        url: str,
+        tasks: list[DecomposedTask],
+        storage_state: str | Path | None = None,
     ) -> list[TaskProfile]:
-        coros = [self._discover_one(url, task) for task in tasks]
+        coros = [self._discover_one(url, task, storage_state) for task in tasks]
         results = await asyncio.gather(*coros, return_exceptions=True)
 
         profiles: list[TaskProfile] = []
@@ -43,9 +47,18 @@ class FlowDiscoverer:
         logger.info("Discovered %d/%d tasks", len(profiles), len(tasks))
         return profiles
 
-    async def _discover_one(self, url: str, task: DecomposedTask) -> TaskProfile | None:
+    async def _discover_one(
+        self,
+        url: str,
+        task: DecomposedTask,
+        storage_state: str | Path | None = None,
+    ) -> TaskProfile | None:
         async with self._semaphore:
-            browser = Browser(headless=False)
+            browser_kwargs: dict = {"headless": False}
+            if storage_state:
+                browser_kwargs["storage_state"] = str(storage_state)
+                browser_kwargs["user_data_dir"] = None
+            browser = Browser(**browser_kwargs)
             try:
                 prompt = DISCOVERER_TASK.format(
                     url=url, task_description=task.description

@@ -40,6 +40,7 @@ class SiteProfile(BaseModel):
     name: str
     description: str
     tasks: list[TaskProfile]
+    auth_configured: bool = False
 
 
 class DiscoveryResult(BaseModel):
