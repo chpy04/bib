@@ -571,5 +571,286 @@
     ],
     "display_hint": "card_list",
     "type": "data"
+  },
+  "top_posts": {
+    "name": "top_posts",
+    "description": "Fetch the top posts from the r/programming subreddit homepage, including post title, score (upvotes), number of comments, author, post URL, and time posted",
+    "instructions": "Step 1: {'navigate': {'url': 'https://www.reddit.com/r/programming/', 'new_tab': False}, 'interacted_element': None}\nStep 2: {'extract': {'query': 'Extract all posts from r/programming homepage with title, score (upvotes), number of comments, author, post URL, time posted, and flair for each post', 'extract_links': True, 'start_from_char': 0}, 'interacted_element': None}\nStep 3: {'done': {'text': '[{\"title\":\"Yes, and...\",\"score\":\"152\",\"num_comments\":\"59\",\"author\":\"u/BinaryIgor\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rh9bnw/yes_and/\",\"time_posted\":\"14 hr. ago\",\"flair\":\"\"},{\"title\":\"Anthropic: AI assisted coding doesn\\'t show efficiency gains and impairs developers abilities.\",\"score\":\"4K\",\"num_comments\":\"694\",\"author\":\"u/Gil_berth\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1qqxvlw/anthropic_ai_assisted_coding_doesnt_show/\",\"time_posted\":\"1 mo. ago\",\"flair\":\"\"},{\"title\":\"Understanding RabbitMQ in simple terms\",\"score\":\"47\",\"num_comments\":\"12\",\"author\":\"u/Sushant098123\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rh3pul/understanding_rabbitmq_in_simple_terms/\",\"time_posted\":\"18 hr. ago\",\"flair\":\"\"},{\"title\":\"Bringing Claude Code Skills into Neovim via ACP\",\"score\":\"0\",\"num_comments\":\"2\",\"author\":\"u/redditjohnsmith\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rhpr5l/bringing_claude_code_skills_into_neovim_via_acp/\",\"time_posted\":\"2 hr. ago\",\"flair\":\"\"},{\"title\":\"Falsehoods Programmers Believe About Time (Still)\",\"score\":\"1.2K\",\"num_comments\":\"328\",\"author\":\"\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rejwmj/falsehoods_programmers_believe_about_time_still/\",\"time_posted\":\"4 days ago\",\"flair\":\"\"},{\"title\":\"A Rabbit Hole Called WebGL (8-part series)\",\"score\":\"14\",\"num_comments\":\"4\",\"author\":\"u/nathan_lesage\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rhb89v/a_rabbit_hole_called_webgl_8part_series_on_the/\",\"time_posted\":\"13 hr. ago\",\"flair\":\"\"},{\"title\":\"Open-source game engine Godot is drowning in AI slop\",\"score\":\"3K\",\"num_comments\":\"504\",\"author\":\"\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1r7moxx/opensource_game_engine_godot_is_drowning_in_ai/\",\"time_posted\":\"11 days ago\",\"flair\":\"\"},{\"title\":\"A Social Filesystem\",\"score\":\"88\",\"num_comments\":\"23\",\"author\":\"u/fagnerbrack\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rgw211/a_social_filesystem/\",\"time_posted\":\"1 day ago\",\"flair\":\"\"},{\"title\":\"RFC 406i: The Rejection of Artificially Generated Content\",\"score\":\"770\",\"num_comments\":\"162\",\"author\":\"\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rdiul6/rfc_406i_the_rejection_of_artificially_generated/\",\"time_posted\":\"5 days ago\",\"flair\":\"\"},{\"title\":\"MQTT: The Protocol Behind Every Smart Device (Golang)\",\"score\":\"6\",\"num_comments\":\"0\",\"author\":\"u/huseyinbabal\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rhaxyp/mqtt_the_protocol_behind_every_smart_device_golang/\",\"time_posted\":\"13 hr. ago\",\"flair\":\"\"},{\"title\":\"Simple Made Inevitable: The Economics of Language Choice in the LLM Era\",\"score\":\"0\",\"num_comments\":\"2\",\"author\":\"\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rhmyf9/simple_made_inevitable_the_economics_of_language/\",\"time_posted\":\"4 hr. ago\",\"flair\":\"\"},{\"title\":\"AWS suffered at least two outages caused by AI\",\"score\":\"2.8K\",\"num_comments\":\"199\",\"author\":\"u/squishygorilla\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1r9xd58/aws_suffered_at_least_two_outages_caused_by_ai/\",\"time_posted\":\"9 days ago\",\"flair\":\"\"},{\"title\":\"The proposal for generic methods for Go has been accepted\",\"score\":\"393\",\"num_comments\":\"179\",\"author\":\"u/ketralnis\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rgartl/the_proposal_for_generic_methods_for_go_has_been/\",\"time_posted\":\"2 days ago\",\"flair\":\"\"},{\"title\":\"Fake job interviews are installing backdoors on developer systems\",\"score\":\"707\",\"num_comments\":\"104\",\"author\":\"u/Big-Engineering-9365\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1readhv/fake_job_interviews_are_installing_backdoors_on/\",\"time_posted\":\"4 days ago\",\"flair\":\"\"},{\"title\":\"People are still writing JavaScript DRM\",\"score\":\"148\",\"num_comments\":\"38\",\"author\":\"\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rga6md/people_are_still_writing_javascript_drm/\",\"time_posted\":\"2 days ago\",\"flair\":\"\"},{\"title\":\"Code isn\\'t what\\'s slowing projects down\",\"score\":\"471\",\"num_comments\":\"69\",\"author\":\"u/ArghAy\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rcj41t/code_isnt_whats_slowing_projects_down/\",\"time_posted\":\"6 days ago\",\"flair\":\"\"},{\"title\":\"Log4j: Addressing AI-slop in security reports\",\"score\":\"147\",\"num_comments\":\"11\",\"author\":\"\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rg9p7u/log4j_addressing_aislop_in_security_reports/\",\"time_posted\":\"2 days ago\",\"flair\":\"\"},{\"title\":\"Anthropic built a C compiler using a team of AI agents\",\"score\":\"2.8K\",\"num_comments\":\"749\",\"author\":\"\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1qwzyu4/anthropic_built_a_c_compiler_using_a_team_of/\",\"time_posted\":\"23 days ago\",\"flair\":\"\"},{\"title\":\"Distributed Systems for Fun and Profit\",\"score\":\"23\",\"num_comments\":\"0\",\"author\":\"u/ketralnis\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rgo8j9/distributed_systems_for_fun_and_profit/\",\"time_posted\":\"1 day ago\",\"flair\":\"\"},{\"title\":\"Software Engineers Should Be a Little Bit Cynical\",\"score\":\"460\",\"num_comments\":\"90\",\"author\":\"u/fagnerbrack\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rgg1wr/software_engineers_should_be_a_little_bit_cynical/\",\"time_posted\":\"2 days ago\",\"flair\":\"\"},{\"title\":\"Allocating on the Stack (go)\",\"score\":\"41\",\"num_comments\":\"4\",\"author\":\"u/ketralnis\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rgdqfw/allocating_on_the_stack_go/\",\"time_posted\":\"2 days ago\",\"flair\":\"\"},{\"title\":\"Vibe Coding Threatens Open Source\",\"score\":\"404\",\"num_comments\":\"129\",\"author\":\"\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1re6efb/vibe_coding_threatens_open_source/\",\"time_posted\":\"4 days ago\",\"flair\":\"\"},{\"title\":\"Google API Keys Weren\\'t Secrets, But Then Gemini Changed the Rules\",\"score\":\"354\",\"num_comments\":\"17\",\"author\":\"\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rfr1jg/google_api_keys_werent_secrets_but_then_gemini/\",\"time_posted\":\"2 days ago\",\"flair\":\"\"},{\"title\":\"80386 Protection\",\"score\":\"21\",\"num_comments\":\"2\",\"author\":\"u/ketralnis\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rgaqti/80386_protection/\",\"time_posted\":\"2 days ago\",\"flair\":\"\"},{\"title\":\"Slop pull request is rejected so slop author opens a slop issue\",\"score\":\"2.5K\",\"num_comments\":\"351\",\"author\":\"u/yojimbo_beta\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1r2sa5u/slop_pull_request_is_rejected_so_slop_author/\",\"time_posted\":\"17 days ago\",\"flair\":\"\"},{\"title\":\"Creator of Claude Code: \\\\\"Coding is Solved\\\\\"\",\"score\":\"2.1K\",\"num_comments\":\"788\",\"author\":\"\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rakdst/creator_of_claude_code_coding_is_solved/\",\"time_posted\":\"8 days ago\",\"flair\":\"\"},{\"title\":\"We Deserve a Better Streams API for JavaScript\",\"score\":\"17\",\"num_comments\":\"1\",\"author\":\"u/ketralnis\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rgap4h/we_deserve_a_better_streams_api_for_javascript/\",\"time_posted\":\"2 days ago\",\"flair\":\"\"}]', 'success': True, 'files_to_display': []}, 'interacted_element': None}",
+    "output_schema": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "score": {
+            "type": "string"
+          },
+          "num_comments": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          },
+          "post_url": {
+            "type": "string"
+          },
+          "time_posted": {
+            "type": "string"
+          },
+          "flair": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "sample_output": [
+      {
+        "title": "Yes, and...",
+        "score": "152",
+        "num_comments": "59",
+        "author": "u/BinaryIgor",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rh9bnw/yes_and/",
+        "time_posted": "14 hr. ago",
+        "flair": ""
+      },
+      {
+        "title": "Anthropic: AI assisted coding doesn't show efficiency gains and impairs developers abilities.",
+        "score": "4K",
+        "num_comments": "694",
+        "author": "u/Gil_berth",
+        "post_url": "https://www.reddit.com/r/programming/comments/1qqxvlw/anthropic_ai_assisted_coding_doesnt_show/",
+        "time_posted": "1 mo. ago",
+        "flair": ""
+      },
+      {
+        "title": "Understanding RabbitMQ in simple terms",
+        "score": "47",
+        "num_comments": "12",
+        "author": "u/Sushant098123",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rh3pul/understanding_rabbitmq_in_simple_terms/",
+        "time_posted": "18 hr. ago",
+        "flair": ""
+      },
+      {
+        "title": "Bringing Claude Code Skills into Neovim via ACP",
+        "score": "0",
+        "num_comments": "2",
+        "author": "u/redditjohnsmith",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rhpr5l/bringing_claude_code_skills_into_neovim_via_acp/",
+        "time_posted": "2 hr. ago",
+        "flair": ""
+      },
+      {
+        "title": "Falsehoods Programmers Believe About Time (Still)",
+        "score": "1.2K",
+        "num_comments": "328",
+        "author": "",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rejwmj/falsehoods_programmers_believe_about_time_still/",
+        "time_posted": "4 days ago",
+        "flair": ""
+      },
+      {
+        "title": "A Rabbit Hole Called WebGL (8-part series)",
+        "score": "14",
+        "num_comments": "4",
+        "author": "u/nathan_lesage",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rhb89v/a_rabbit_hole_called_webgl_8part_series_on_the/",
+        "time_posted": "13 hr. ago",
+        "flair": ""
+      },
+      {
+        "title": "Open-source game engine Godot is drowning in AI slop",
+        "score": "3K",
+        "num_comments": "504",
+        "author": "",
+        "post_url": "https://www.reddit.com/r/programming/comments/1r7moxx/opensource_game_engine_godot_is_drowning_in_ai/",
+        "time_posted": "11 days ago",
+        "flair": ""
+      },
+      {
+        "title": "A Social Filesystem",
+        "score": "88",
+        "num_comments": "23",
+        "author": "u/fagnerbrack",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rgw211/a_social_filesystem/",
+        "time_posted": "1 day ago",
+        "flair": ""
+      },
+      {
+        "title": "RFC 406i: The Rejection of Artificially Generated Content",
+        "score": "770",
+        "num_comments": "162",
+        "author": "",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rdiul6/rfc_406i_the_rejection_of_artificially_generated/",
+        "time_posted": "5 days ago",
+        "flair": ""
+      },
+      {
+        "title": "MQTT: The Protocol Behind Every Smart Device (Golang)",
+        "score": "6",
+        "num_comments": "0",
+        "author": "u/huseyinbabal",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rhaxyp/mqtt_the_protocol_behind_every_smart_device_golang/",
+        "time_posted": "13 hr. ago",
+        "flair": ""
+      },
+      {
+        "title": "Simple Made Inevitable: The Economics of Language Choice in the LLM Era",
+        "score": "0",
+        "num_comments": "2",
+        "author": "",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rhmyf9/simple_made_inevitable_the_economics_of_language/",
+        "time_posted": "4 hr. ago",
+        "flair": ""
+      },
+      {
+        "title": "AWS suffered at least two outages caused by AI",
+        "score": "2.8K",
+        "num_comments": "199",
+        "author": "u/squishygorilla",
+        "post_url": "https://www.reddit.com/r/programming/comments/1r9xd58/aws_suffered_at_least_two_outages_caused_by_ai/",
+        "time_posted": "9 days ago",
+        "flair": ""
+      },
+      {
+        "title": "The proposal for generic methods for Go has been accepted",
+        "score": "393",
+        "num_comments": "179",
+        "author": "u/ketralnis",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rgartl/the_proposal_for_generic_methods_for_go_has_been/",
+        "time_posted": "2 days ago",
+        "flair": ""
+      },
+      {
+        "title": "Fake job interviews are installing backdoors on developer systems",
+        "score": "707",
+        "num_comments": "104",
+        "author": "u/Big-Engineering-9365",
+        "post_url": "https://www.reddit.com/r/programming/comments/1readhv/fake_job_interviews_are_installing_backdoors_on/",
+        "time_posted": "4 days ago",
+        "flair": ""
+      },
+      {
+        "title": "People are still writing JavaScript DRM",
+        "score": "148",
+        "num_comments": "38",
+        "author": "",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rga6md/people_are_still_writing_javascript_drm/",
+        "time_posted": "2 days ago",
+        "flair": ""
+      },
+      {
+        "title": "Code isn't what's slowing projects down",
+        "score": "471",
+        "num_comments": "69",
+        "author": "u/ArghAy",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rcj41t/code_isnt_whats_slowing_projects_down/",
+        "time_posted": "6 days ago",
+        "flair": ""
+      },
+      {
+        "title": "Log4j: Addressing AI-slop in security reports",
+        "score": "147",
+        "num_comments": "11",
+        "author": "",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rg9p7u/log4j_addressing_aislop_in_security_reports/",
+        "time_posted": "2 days ago",
+        "flair": ""
+      },
+      {
+        "title": "Anthropic built a C compiler using a team of AI agents",
+        "score": "2.8K",
+        "num_comments": "749",
+        "author": "",
+        "post_url": "https://www.reddit.com/r/programming/comments/1qwzyu4/anthropic_built_a_c_compiler_using_a_team_of/",
+        "time_posted": "23 days ago",
+        "flair": ""
+      },
+      {
+        "title": "Distributed Systems for Fun and Profit",
+        "score": "23",
+        "num_comments": "0",
+        "author": "u/ketralnis",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rgo8j9/distributed_systems_for_fun_and_profit/",
+        "time_posted": "1 day ago",
+        "flair": ""
+      },
+      {
+        "title": "Software Engineers Should Be a Little Bit Cynical",
+        "score": "460",
+        "num_comments": "90",
+        "author": "u/fagnerbrack",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rgg1wr/software_engineers_should_be_a_little_bit_cynical/",
+        "time_posted": "2 days ago",
+        "flair": ""
+      },
+      {
+        "title": "Allocating on the Stack (go)",
+        "score": "41",
+        "num_comments": "4",
+        "author": "u/ketralnis",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rgdqfw/allocating_on_the_stack_go/",
+        "time_posted": "2 days ago",
+        "flair": ""
+      },
+      {
+        "title": "Vibe Coding Threatens Open Source",
+        "score": "404",
+        "num_comments": "129",
+        "author": "",
+        "post_url": "https://www.reddit.com/r/programming/comments/1re6efb/vibe_coding_threatens_open_source/",
+        "time_posted": "4 days ago",
+        "flair": ""
+      },
+      {
+        "title": "Google API Keys Weren't Secrets, But Then Gemini Changed the Rules",
+        "score": "354",
+        "num_comments": "17",
+        "author": "",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rfr1jg/google_api_keys_werent_secrets_but_then_gemini/",
+        "time_posted": "2 days ago",
+        "flair": ""
+      },
+      {
+        "title": "80386 Protection",
+        "score": "21",
+        "num_comments": "2",
+        "author": "u/ketralnis",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rgaqti/80386_protection/",
+        "time_posted": "2 days ago",
+        "flair": ""
+      },
+      {
+        "title": "Slop pull request is rejected so slop author opens a slop issue",
+        "score": "2.5K",
+        "num_comments": "351",
+        "author": "u/yojimbo_beta",
+        "post_url": "https://www.reddit.com/r/programming/comments/1r2sa5u/slop_pull_request_is_rejected_so_slop_author/",
+        "time_posted": "17 days ago",
+        "flair": ""
+      },
+      {
+        "title": "Creator of Claude Code: \"Coding is Solved\"",
+        "score": "2.1K",
+        "num_comments": "788",
+        "author": "",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rakdst/creator_of_claude_code_coding_is_solved/",
+        "time_posted": "8 days ago",
+        "flair": ""
+      },
+      {
+        "title": "We Deserve a Better Streams API for JavaScript",
+        "score": "17",
+        "num_comments": "1",
+        "author": "u/ketralnis",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rgap4h/we_deserve_a_better_streams_api_for_javascript/",
+        "time_posted": "2 days ago",
+        "flair": ""
+      }
+    ],
+    "display_hint": "card_list",
+    "type": "data"
   }
 }

@@ -4,7 +4,7 @@ import json
 import logging
 from typing import Any
 
-from browser_use import Agent
+from browser_use import Agent, Browser
 from browser_use.llm import ChatAnthropic
 
 from app.config import settings
@@ -23,6 +23,19 @@ def _make_llm() -> ChatAnthropic:
     )
 
 
+def _make_browser() -> Browser:
+    """Create a fresh BrowserSession for a single agent run.
+
+    Each agent gets its own session so there are no event-handler conflicts
+    with the persistent auth browser. The saved auth state (if any) is loaded
+    so the agent is automatically authenticated.
+    """
+    from app.browser import AUTH_STATE_PATH
+
+    storage_state = str(AUTH_STATE_PATH) if AUTH_STATE_PATH.exists() else None
+    return Browser(headless=False, storage_state=storage_state)
+
+
 def _format_instructions(history) -> str:
     """Convert agent action history to reusable step-by-step instructions string."""
     steps = []
@@ -33,7 +46,6 @@ def _format_instructions(history) -> str:
         pass
     if steps:
         return "\n".join(steps)
-    # Fallback: use the agent's final reasoning if available
     try:
         return history.final_result() or "Navigate to the site and extract the required data."
     except Exception:
@@ -57,14 +69,6 @@ def _parse_result(raw: str) -> Any:
 
 async def verify_task(task: Task, url: str) -> VerifiedTask | None:
     """Run a Browser Use agent to verify a single task and capture sample data."""
-    from app.browser import get_browser
-
-    try:
-        browser = get_browser()
-    except RuntimeError as e:
-        logger.error("Cannot verify task '%s': %s", task.id, e)
-        return None
-
     schema_json = json.dumps(task.output_schema, indent=2)
     task_prompt = (
         f"Navigate to {url} and perform the following task:\n"
@@ -73,6 +77,7 @@ async def verify_task(task: Task, url: str) -> VerifiedTask | None:
         "Do not include any explanatory text. Only return valid JSON."
     )
 
+    browser = _make_browser()
     try:
         agent = Agent(
             task=task_prompt,
@@ -84,6 +89,11 @@ async def verify_task(task: Task, url: str) -> VerifiedTask | None:
     except Exception as e:
         logger.error("Agent failed for task '%s': %s", task.id, e)
         return None
+    finally:
+        try:
+            await browser.stop()
+        except Exception:
+            pass
 
     raw = history.final_result()
     if not raw:
@@ -127,8 +137,7 @@ async def verify_tasks(tasks: list[Task], url: str) -> list[VerifiedTask]:
 
 
 async def run_instruction(instruction_name: str) -> dict[str, Any]:
-    """Execute a named instruction from the registry using the persistent browser."""
-    from app.browser import get_browser
+    """Execute a named instruction from the registry."""
     from app.registry import get_instruction
 
     instruction = get_instruction(instruction_name)
@@ -140,16 +149,6 @@ async def run_instruction(instruction_name: str) -> dict[str, Any]:
             "error": f"Instruction '{instruction_name}' not found in registry",
         }
 
-    try:
-        browser = get_browser()
-    except RuntimeError as e:
-        return {
-            "instruction_name": instruction_name,
-            "data": None,
-            "success": False,
-            "error": str(e),
-        }
-
     schema_json = json.dumps(instruction.get("output_schema", {}), indent=2)
     task_prompt = (
         f"Follow these instructions exactly:\n"
@@ -158,6 +157,7 @@ async def run_instruction(instruction_name: str) -> dict[str, Any]:
         "Do not include any explanatory text. Only return valid JSON."
     )
 
+    browser = _make_browser()
     try:
         agent = Agent(
             task=task_prompt,
@@ -174,6 +174,11 @@ async def run_instruction(instruction_name: str) -> dict[str, Any]:
             "success": False,
             "error": f"Agent execution error: {e}",
         }
+    finally:
+        try:
+            await browser.stop()
+        except Exception:
+            pass
 
     raw = history.final_result()
     if not raw:
