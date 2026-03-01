@@ -29,7 +29,13 @@
             "description": "The status of the pull request (typically 'open')"
           }
         },
-        "required": ["title", "author", "repo", "created_at", "status"]
+        "required": [
+          "title",
+          "author",
+          "repo",
+          "created_at",
+          "status"
+        ]
       }
     },
     "display_hint": "card_list",
@@ -65,9 +71,152 @@
             "description": "The URL to the repository"
           }
         },
-        "required": ["name", "description", "language", "stars", "url"]
+        "required": [
+          "name",
+          "description",
+          "language",
+          "stars",
+          "url"
+        ]
       }
     },
+    "display_hint": "card_list",
+    "type": "data"
+  },
+  "top_posts_programming": {
+    "name": "top_posts_programming",
+    "description": "Fetch the top recent posts from the r/programming subreddit, including post title, author, score (upvotes), number of comments, and link to the post.",
+    "instructions": "Step 1: {'navigate': {'url': 'https://www.reddit.com/r/programming/', 'new_tab': False}, 'interacted_element': None}\nStep 2: {'extract': {'query': 'Extract all Reddit posts with title, author, score/upvotes, number of comments, post URL, time posted, and flair. Exclude ads/promoted posts.', 'extract_links': True, 'start_from_char': 0}, 'interacted_element': None}\nStep 3: {'scroll': {'down': True, 'pages': 3.0}, 'interacted_element': None}\nStep 4: {'done': {'text': '[{\"title\":\"Yes, and...\",\"author\":\"u/BinaryIgor\",\"score\":\"154\",\"num_comments\":\"58\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rh9bnw/yes_and/\",\"time_posted\":\"15 hours ago\",\"flair\":\"\"},{\"title\":\"Anthropic AI assisted coding doesn\\'t show productivity gains in controlled study\",\"author\":\"u/Gil_berth\",\"score\":\"4K\",\"num_comments\":\"694\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1qqxvlw/anthropic_ai_assisted_coding_doesnt_show/\",\"time_posted\":\"1 month ago\",\"flair\":\"\"},{\"title\":\"Understanding RabbitMQ in Simple Terms\",\"author\":\"u/Sushant098123\",\"score\":\"49\",\"num_comments\":\"12\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rh3pul/understanding_rabbitmq_in_simple_terms/\",\"time_posted\":\"18 hours ago\",\"flair\":\"\"},{\"title\":\"Bringing Claude Code Skills into Neovim via ACP\",\"author\":\"u/redditjohnsmith\",\"score\":\"\",\"num_comments\":\"\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rhpr5l/\",\"time_posted\":\"2 hours ago\",\"flair\":\"\"},{\"title\":\"\\\\\"Falsehoods Programmers Believe About Time\\\\\" still the best reminder that time handling is fundamentally broken\",\"author\":\"u/Digitalunicon\",\"score\":\"1.2K\",\"num_comments\":\"328\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rejwmj/\",\"time_posted\":\"4 days ago\",\"flair\":\"\"},{\"title\":\"A Rabbit Hole Called WebGL (8-part series on the technical background of a WebGL application w/ functional demo)\",\"author\":\"u/nathan_lesage\",\"score\":\"14\",\"num_comments\":\"\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rhb89v/\",\"time_posted\":\"13 hours ago\",\"flair\":\"\"},{\"title\":\"Open-source game engine Godot is drowning in \\'AI slop\\' code contributions: \\'I don\\'t know how long we can keep it up\\'\",\"author\":\"u/BlueGoliath\",\"score\":\"3K\",\"num_comments\":\"504\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1r7moxx/\",\"time_posted\":\"11 days ago\",\"flair\":\"\"},{\"title\":\"A Social Filesystem\",\"author\":\"u/fagnerbrack\",\"score\":\"88\",\"num_comments\":\"23\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rgw211/\",\"time_posted\":\"1 day ago\",\"flair\":\"\"},{\"title\":\"RFC 406i: The Rejection of Artificially Generated Slop (RAGS)\",\"author\":\"u/addvilz\",\"score\":\"770\",\"num_comments\":\"162\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rdiul6/\",\"time_posted\":\"5 days ago\",\"flair\":\"\"},{\"title\":\"MQTT: The Protocol Behind Every Smart Device (Golang)\",\"author\":\"u/huseyinbabal\",\"score\":\"\",\"num_comments\":\"\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rhaxyp/\",\"time_posted\":\"13 hours ago\",\"flair\":\"\"},{\"title\":\"Simple Made Inevitable: The Economics of Language Choice in the LLM Era\",\"author\":\"u/alexdmiller\",\"score\":\"30\",\"num_comments\":\"\",\"post_url\":\"https://www.reddit.com/r/programming/comments/1rhmyf9/\",\"time_posted\":\"5 hours ago\",\"flair\":\"\"}]', 'success': True, 'files_to_display': []}, 'interacted_element': None}",
+    "output_schema": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          },
+          "score": {
+            "type": "string"
+          },
+          "num_comments": {
+            "type": "string"
+          },
+          "post_url": {
+            "type": "string"
+          },
+          "time_posted": {
+            "type": "string"
+          },
+          "flair": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "sample_output": [
+      {
+        "title": "Yes, and...",
+        "author": "u/BinaryIgor",
+        "score": "154",
+        "num_comments": "58",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rh9bnw/yes_and/",
+        "time_posted": "15 hours ago",
+        "flair": ""
+      },
+      {
+        "title": "Anthropic AI assisted coding doesn't show productivity gains in controlled study",
+        "author": "u/Gil_berth",
+        "score": "4K",
+        "num_comments": "694",
+        "post_url": "https://www.reddit.com/r/programming/comments/1qqxvlw/anthropic_ai_assisted_coding_doesnt_show/",
+        "time_posted": "1 month ago",
+        "flair": ""
+      },
+      {
+        "title": "Understanding RabbitMQ in Simple Terms",
+        "author": "u/Sushant098123",
+        "score": "49",
+        "num_comments": "12",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rh3pul/understanding_rabbitmq_in_simple_terms/",
+        "time_posted": "18 hours ago",
+        "flair": ""
+      },
+      {
+        "title": "Bringing Claude Code Skills into Neovim via ACP",
+        "author": "u/redditjohnsmith",
+        "score": "",
+        "num_comments": "",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rhpr5l/",
+        "time_posted": "2 hours ago",
+        "flair": ""
+      },
+      {
+        "title": "\"Falsehoods Programmers Believe About Time\" still the best reminder that time handling is fundamentally broken",
+        "author": "u/Digitalunicon",
+        "score": "1.2K",
+        "num_comments": "328",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rejwmj/",
+        "time_posted": "4 days ago",
+        "flair": ""
+      },
+      {
+        "title": "A Rabbit Hole Called WebGL (8-part series on the technical background of a WebGL application w/ functional demo)",
+        "author": "u/nathan_lesage",
+        "score": "14",
+        "num_comments": "",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rhb89v/",
+        "time_posted": "13 hours ago",
+        "flair": ""
+      },
+      {
+        "title": "Open-source game engine Godot is drowning in 'AI slop' code contributions: 'I don't know how long we can keep it up'",
+        "author": "u/BlueGoliath",
+        "score": "3K",
+        "num_comments": "504",
+        "post_url": "https://www.reddit.com/r/programming/comments/1r7moxx/",
+        "time_posted": "11 days ago",
+        "flair": ""
+      },
+      {
+        "title": "A Social Filesystem",
+        "author": "u/fagnerbrack",
+        "score": "88",
+        "num_comments": "23",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rgw211/",
+        "time_posted": "1 day ago",
+        "flair": ""
+      },
+      {
+        "title": "RFC 406i: The Rejection of Artificially Generated Slop (RAGS)",
+        "author": "u/addvilz",
+        "score": "770",
+        "num_comments": "162",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rdiul6/",
+        "time_posted": "5 days ago",
+        "flair": ""
+      },
+      {
+        "title": "MQTT: The Protocol Behind Every Smart Device (Golang)",
+        "author": "u/huseyinbabal",
+        "score": "",
+        "num_comments": "",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rhaxyp/",
+        "time_posted": "13 hours ago",
+        "flair": ""
+      },
+      {
+        "title": "Simple Made Inevitable: The Economics of Language Choice in the LLM Era",
+        "author": "u/alexdmiller",
+        "score": "30",
+        "num_comments": "",
+        "post_url": "https://www.reddit.com/r/programming/comments/1rhmyf9/",
+        "time_posted": "5 hours ago",
+        "flair": ""
+      }
+    ],
     "display_hint": "card_list",
     "type": "data"
   }
