@@ -1,7 +1,5 @@
 import logging
 
-from langchain_anthropic import ChatAnthropic
-
 from app.config import settings
 from app.profiler.models import DecomposerOutput
 from app.profiler.prompts import DECOMPOSER_SYSTEM, DECOMPOSER_USER
@@ -9,13 +7,28 @@ from app.profiler.prompts import DECOMPOSER_SYSTEM, DECOMPOSER_USER
 logger = logging.getLogger(__name__)
 
 
-class TaskDecomposer:
-    def __init__(self) -> None:
-        self.llm = ChatAnthropic(
-            model="claude-sonnet-4-20250514",
+def _make_llm():
+    """Return a LangChain LLM based on the configured LLM_PROVIDER."""
+    provider = settings.llm_provider.lower()
+    if provider == "anthropic":
+        from langchain_anthropic import ChatAnthropic
+        return ChatAnthropic(
+            model=settings.anthropic_model,
             api_key=settings.anthropic_api_key,
             temperature=0.0,
         )
+    # Default: OpenAI
+    from langchain_openai import ChatOpenAI
+    return ChatOpenAI(
+        model=settings.openai_model,
+        api_key=settings.openai_api_key,
+        temperature=0.0,
+    )
+
+
+class TaskDecomposer:
+    def __init__(self) -> None:
+        self.llm = _make_llm()
 
     async def decompose(self, url: str, user_request: str) -> DecomposerOutput:
         structured_llm = self.llm.with_structured_output(DecomposerOutput)

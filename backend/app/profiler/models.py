@@ -45,9 +45,16 @@ class SiteProfile(BaseModel):
 
 class DiscoveryResult(BaseModel):
     """Structured output from browser-use Agent during discovery.
-    Pydantic validates this at runtime — required fields enforced, types checked.
+
+    extracted_data is typed as str (JSON-encoded string) rather than Any
+    because OpenAI's structured output (response_format) requires every
+    field to have an explicit 'type' key in the schema. Any produces
+    {"title": "..."} with no 'type', which OpenAI rejects with a 400 error.
+
+    The discoverer parses extracted_data_json back to a Python object after
+    receiving the structured output.
     """
-    extracted_data: Any
+    extracted_data_json: str          # agent serializes extracted data as JSON string
     agent_prompt_used: str
     suggested_fields: dict[str, str]
     is_list: bool

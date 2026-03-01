@@ -57,6 +57,7 @@ async def create_profile(req: CreateProfileRequest) -> SiteProfile:
                         profile.auth_configured = (child / "auth_state.json").exists()
                         return profile
                 except Exception:
+                    logger.exception("Failed to load profile from %s", profile_file)
                     continue
 
     profile = SiteProfile(

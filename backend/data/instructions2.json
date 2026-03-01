@@ -76,5 +76,53 @@
     },
     "display_hint": "card_list",
     "type": "data"
+  },
+  "extract_top_stories": {
+    "name": "extract_top_stories",
+    "profile_id": "aeb93efe-5638-4cec-9bb7-426e7cdd3e71",
+    "description": "Extract the list of top stories including each story's title, score, comment count, and submitter name from the homepage.",
+    "instructions": "1. Navigate to https://news.ycombinator.com. 2. Extract the list of top stories including each story's title, score, comment count, and submitter name from the homepage.",
+    "output_schema": [
+      {
+        "title": "string",
+        "score": "integer",
+        "comment_count": "integer",
+        "submitter_name": "string"
+      }
+    ],
+    "sample_data": [
+      {
+        "title": "Microgpt",
+        "score": 366,
+        "comment_count": 69,
+        "submitter_name": "tambourine_man"
+      },
+      {
+        "title": "We do not think Anthropic should be designated as a supply chain risk",
+        "score": 396,
+        "comment_count": 171,
+        "submitter_name": "golfer"
+      },
+      {
+        "title": "The Windows 95 user interface: A case study in usability engineering (1996)",
+        "score": 194,
+        "comment_count": 112,
+        "submitter_name": "ksec"
+      },
+      {
+        "title": "Obsidian Sync now has a headless client",
+        "score": 432,
+        "comment_count": 147,
+        "submitter_name": "adilmoujahid"
+      },
+      {
+        "title": "The happiest I've ever been",
+        "score": 392,
+        "comment_count": 199,
+        "submitter_name": "bewal416"
+      }
+    ],
+    "display_hint": "card_list",
+    "type": "data"
   }
 }

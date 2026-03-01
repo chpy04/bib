@@ -8,8 +8,9 @@ class Settings(BaseSettings):
     openai_api_key: str = ""
     anthropic_api_key: str = ""
     profiles_dir: Path = Path(__file__).parent.parent / "profiles"
-    anthropic_api_key: str = ""
     llm_provider: str = "openai"
+    openai_model: str = "gpt-4o"
+    anthropic_model: str = "claude-sonnet-4-20250514"
     cdp_url: str = ""
     instructions_file: Path = Path(__file__).parent.parent / "data" / "instructions.json"
 

@@ -11,6 +11,9 @@ Return a list of tasks. Each task needs:
 - name: short identifier (snake_case)
 - type: DATA_READ or ACTION
 - description: what the task does, specific enough for a browser agent to execute
+
+Keep the task list small — combine related data reads into a single task where possible.
+For example, extracting titles, scores, and submitters from a list should be ONE task, not three.
 """
 
 DECOMPOSER_USER = """\
@@ -28,12 +31,21 @@ Task: {task_description}
 
 Instructions:
 1. Navigate to the URL
-2. Perform the task described above
-3. Extract any relevant data you find
-4. Return your results as structured data
+2. Perform the task described above and extract all relevant data
+3. When done, call the done() action with a JSON object as your result
 
-For DATA_READ tasks: extract the data and return it.
-For ACTION tasks: describe the steps needed and any parameters required.
+Your final result MUST be a valid JSON object with exactly these four keys:
 
-Be thorough but concise. Return real data from the page, not placeholder values.
+{{
+  "extracted_data_json": "<a JSON string of the extracted data, e.g. \\"[{{\\\\\"title\\\\\": \\"...\\"}}]\\" >",
+  "agent_prompt_used": "<the exact step-by-step instructions a future agent should follow to repeat this task>",
+  "suggested_fields": {{"field_name": "type", "field_name2": "type2"}},
+  "is_list": true
+}}
+
+Rules:
+- extracted_data_json must be a string containing JSON-encoded data, not a raw object
+- suggested_fields maps each field name to its type: "string", "integer", "number", or "boolean"
+- is_list is true if the data is a list of records, false if it is a single object
+- Return ONLY the JSON object, no explanation, no markdown fences
 """

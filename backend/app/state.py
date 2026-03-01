@@ -1,6 +1,9 @@
 import asyncio
+import logging
 import time
 from fastapi import WebSocket
+
+logger = logging.getLogger(__name__)
 
 
 class StateManager:
@@ -30,6 +33,7 @@ class StateManager:
             try:
                 await ws.send_json({"type": "state_update", "data": state})
             except Exception:
+                logger.debug("WebSocket client disconnected for profile %s", profile_id)
                 dead.append(ws)
         for ws in dead:
             self.clients[profile_id].remove(ws)
