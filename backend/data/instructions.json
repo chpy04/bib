@@ -1,0 +1,74 @@
+{
+  "get_open_prs": {
+    "name": "get_open_prs",
+    "description": "Fetch a list of open pull requests from a GitHub repository",
+    "instructions": "Navigate to github.com in the browser. Search for or navigate to the target repository. Click on the 'Pull requests' tab in the top navigation. Filter to show only 'Open' pull requests. Extract information for each PR including: title, author/creator name, repository name, creation date, and status. Format the results as a JSON array where each PR is an object with keys: title, author, repo, created_at, status. Return only the JSON array.",
+    "output_schema": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The title of the pull request"
+          },
+          "author": {
+            "type": "string",
+            "description": "The username of the pull request author"
+          },
+          "repo": {
+            "type": "string",
+            "description": "The repository name (e.g., 'owner/repo')"
+          },
+          "created_at": {
+            "type": "string",
+            "description": "The creation date of the pull request (ISO 8601 format)"
+          },
+          "status": {
+            "type": "string",
+            "description": "The status of the pull request (typically 'open')"
+          }
+        },
+        "required": ["title", "author", "repo", "created_at", "status"]
+      }
+    },
+    "display_hint": "card_list",
+    "type": "data"
+  },
+  "get_starred_repos": {
+    "name": "get_starred_repos",
+    "description": "Fetch a list of starred repositories for a GitHub user",
+    "instructions": "Navigate to github.com in the browser. Search for or navigate to the target user profile. Click on the 'Stars' or 'Starred' tab. Extract information for each starred repository including: repository name (owner/repo format), description, primary programming language, number of stars, and URL. Format the results as a JSON array where each repository is an object with keys: name, description, language, stars, url. Return only the JSON array.",
+    "output_schema": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The full repository name (owner/repo format)"
+          },
+          "description": {
+            "type": "string",
+            "description": "The repository description"
+          },
+          "language": {
+            "type": "string",
+            "description": "The primary programming language used in the repository"
+          },
+          "stars": {
+            "type": "integer",
+            "description": "The number of stars/favorites for the repository"
+          },
+          "url": {
+            "type": "string",
+            "description": "The URL to the repository"
+          }
+        },
+        "required": ["name", "description", "language", "stars", "url"]
+      }
+    },
+    "display_hint": "card_list",
+    "type": "data"
+  }
+}
