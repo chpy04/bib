@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from app.agent import verify_task as agent_verify_task
 from app.llm import plan_tasks as llm_plan_tasks
 from app.registry import (
+    get_cached_data,
     list_instructions,
     list_profiles,
     load_profile_meta,
@@ -29,6 +30,13 @@ async def get_profile(profile_id: str):
     if not meta:
         raise HTTPException(status_code=404, detail="Profile not found")
     tools = list_instructions(profile_id)
+    # Hydrate sample_output from cache when available — cache is updated by
+    # /data and /action endpoints, which may be newer than what's in
+    # instructions.json (e.g. after a refetch that went through run_instruction).
+    for tool in tools:
+        cached = get_cached_data(profile_id, tool.get("name", ""))
+        if cached is not None and cached["data"]:
+            tool["sample_output"] = cached["data"]
     return {**meta, "id": profile_id, "tools": tools}
 
 
