@@ -8,6 +8,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/app" element={<AppPage />} />
+        <Route path="/app/:id" element={<AppPage />} />
       </Routes>
     </BrowserRouter>
   )

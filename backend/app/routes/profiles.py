@@ -81,14 +81,17 @@ async def create_profile(req: CreateProfileRequest):
 
 @router.get("/profiles/{profile_id}")
 async def get_profile(profile_id: str):
-    """Get a specific profile config."""
-    return {"profile_id": profile_id, "status": "not_implemented"}
-
-
-@router.get("/profiles/{profile_id}/component")
-async def get_component(profile_id: str):
-    """Get the generated React component code."""
-    return {"component_code": None, "status": "not_implemented"}
+    """Get a profile's chat history and latest component code."""
+    chat = _load_chat(profile_id)
+    component_code = _load_ui(profile_id)
+    return {
+        "session_id": chat["id"],
+        "url": chat.get("url", ""),
+        "messages": chat["messages"],
+        "component_code": component_code,
+        "created_at": chat.get("created_at"),
+        "updated_at": chat.get("updated_at"),
+    }
 
 
 @router.post("/run")

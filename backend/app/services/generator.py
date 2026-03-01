@@ -1,19 +1,15 @@
+from pathlib import Path
+
 import httpx
 from app.config import settings
 
-SYSTEM_PROMPT = """\
-You are a React component generator. You output ONLY valid JavaScript code for a single React component. No markdown, no explanation, no code fences.
+PROMPTS_DIR = Path(__file__).parent.parent / "prompts"
 
-Rules:
-- Export the component as: export default function App() { ... }
-- React is available as a global (e.g. React.useState, React.useEffect). Do NOT import React.
-- Tailwind CSS classes are available for all styling. Use them freely.
-- The following shadcn/ui components are available as globals (no imports needed):
-  Button, Card, CardHeader, CardTitle, CardDescription, CardAction, CardContent, CardFooter
-- Do NOT use any import statements. Everything you need is already loaded.
-- Use React.useState, React.useEffect, React.useRef etc. (not destructured imports).
-- Output ONLY the component code. No commentary before or after.\
-"""
+
+def load_prompt(name: str) -> str:
+    """Load a prompt from the prompts directory by filename (without extension)."""
+    path = PROMPTS_DIR / f"{name}.md"
+    return path.read_text().strip()
 
 
 async def generate_ui(messages: list[dict]) -> str:
@@ -22,7 +18,8 @@ async def generate_ui(messages: list[dict]) -> str:
     Takes the full conversation history (with system prompt prepended).
     Returns the component source code as a string.
     """
-    full_messages = [{"role": "system", "content": SYSTEM_PROMPT}] + messages
+    system_prompt = load_prompt("ui-generation")
+    full_messages = [{"role": "system", "content": system_prompt}] + messages
 
     request_body = {
         "model": "anthropic/claude-sonnet-4-20250514",

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { ScraperForm } from '@/components/scraper-form'
 import { TEST_COMPONENT_CODE, TEST_SESSION_ID } from '@/lib/test-component'
@@ -8,6 +8,8 @@ const RUNNER_URL = '/runner.html'
 const isTestingMode = import.meta.env.VITE_TESTING_MODE === 'true'
 
 export function AppPage() {
+  const { id: profileId } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const [componentCode, setComponentCode] = useState<string | null>(
     isTestingMode ? TEST_COMPONENT_CODE : null
   )
@@ -16,7 +18,27 @@ export function AppPage() {
   const [feedbackLoading, setFeedbackLoading] = useState(false)
   const [feedback, setFeedback] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [profileLoading, setProfileLoading] = useState(false)
   const iframeRef = useRef<HTMLIFrameElement>(null)
+
+  // Load profile from URL param on mount
+  useEffect(() => {
+    if (!profileId || isTestingMode) return
+    setProfileLoading(true)
+    fetch(`/api/profiles/${profileId}`)
+      .then((res) => {
+        if (!res.ok) throw new Error(`Profile not found (${res.status})`)
+        return res.json()
+      })
+      .then((data) => {
+        setSessionId(data.session_id)
+        setComponentCode(data.component_code ?? null)
+      })
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : 'Failed to load profile')
+      })
+      .finally(() => setProfileLoading(false))
+  }, [profileId])
 
   useEffect(() => {
     function onMessage(event: MessageEvent) {
@@ -60,6 +82,7 @@ export function AppPage() {
     setComponentCode(null)
     setFeedback('')
     setError(null)
+    navigate('/app')
   }
 
   const showResult = componentCode !== null
@@ -86,6 +109,9 @@ export function AppPage() {
       </header>
 
       <main className="mx-auto max-w-2xl px-6 py-12">
+        {profileLoading && (
+          <p className="text-sm text-muted-foreground">Loading profile…</p>
+        )}
         {showResult && (
           <div className="mb-4">
             <button
@@ -112,6 +138,7 @@ export function AppPage() {
             onSuccess={(code, sid) => {
               setComponentCode(code)
               setSessionId(sid)
+              navigate(`/app/${sid}`, { replace: true })
             }}
             isTestingMode={isTestingMode}
           />
