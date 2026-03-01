@@ -14,11 +14,9 @@ from app.models import (
     PlanTasksRequest,
     RefineUIRequest,
     TaskPlan,
-    VerifiedTask,
     VerifyTasksRequest,
     VerifyTasksResponse,
 )
-from app.names import generate_name
 from app.registry import (
     load_dashboard,
     save_dashboard,
@@ -50,8 +48,6 @@ async def verify(req: VerifyTasksRequest) -> VerifyTasksResponse:
     except Exception as e:
         logger.exception("Task verification failed")
         raise HTTPException(status_code=502, detail=f"Verification failed: {e}")
-
-    profile_id = generate_name()
 
     parsed = urlparse(req.url)
     site_name = parsed.netloc.replace("www.", "")
