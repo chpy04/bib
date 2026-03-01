@@ -23,14 +23,21 @@ def _make_llm() -> ChatAnthropic:
     )
 
 
-def _make_browser() -> Browser:
+async def _make_browser() -> Browser:
     """Create a fresh BrowserSession for a single agent run.
 
-    Each agent gets its own session so there are no event-handler conflicts
-    with the persistent auth browser. The saved auth state (if any) is loaded
-    so the agent is automatically authenticated.
+    Before creating the agent browser, snapshot the live auth browser's current
+    cookies to disk so the agent inherits the authenticated session — no explicit
+    'save auth' step required from the user.
     """
-    from app.browser import AUTH_STATE_PATH
+    from app.browser import AUTH_STATE_PATH, _browser as auth_browser
+
+    if auth_browser is not None:
+        try:
+            await auth_browser.export_storage_state(AUTH_STATE_PATH)
+            logger.debug("Exported auth state for agent use")
+        except Exception as e:
+            logger.debug("Could not export auth state: %s", e)
 
     storage_state = str(AUTH_STATE_PATH) if AUTH_STATE_PATH.exists() else None
     return Browser(headless=False, storage_state=storage_state)
@@ -77,7 +84,7 @@ async def verify_task(task: Task, url: str) -> VerifiedTask | None:
         "Do not include any explanatory text. Only return valid JSON."
     )
 
-    browser = _make_browser()
+    browser = await _make_browser()
     try:
         agent = Agent(
             task=task_prompt,
@@ -157,7 +164,7 @@ async def run_instruction(instruction_name: str) -> dict[str, Any]:
         "Do not include any explanatory text. Only return valid JSON."
     )
 
-    browser = _make_browser()
+    browser = await _make_browser()
     try:
         agent = Agent(
             task=task_prompt,

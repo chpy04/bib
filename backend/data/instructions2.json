@@ -852,5 +852,105 @@
     ],
     "display_hint": "card_list",
     "type": "data"
+  },
+  "user_repositories": {
+    "name": "user_repositories",
+    "description": "Fetch all repositories for the authenticated GitHub user, including repo name, description, language, visibility, star count, fork count, and last updated date",
+    "instructions": "Step 1: {'navigate': {'url': 'https://github.com/', 'new_tab': False}, 'interacted_element': None}\nStep 2: {'navigate': {'url': 'https://api.github.com/user/repos?per_page=100', 'new_tab': False}, 'interacted_element': None}\nStep 3: {'done': {'text': '[]', 'success': False, 'files_to_display': []}, 'interacted_element': None}",
+    "output_schema": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "visibility": {
+            "type": "string"
+          },
+          "stars": {
+            "type": "string"
+          },
+          "forks": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "sample_output": [],
+    "display_hint": "card_list",
+    "type": "data"
+  },
+  "recent_commits": {
+    "name": "recent_commits",
+    "description": "Fetch the most recent commits made by the authenticated GitHub user across all repositories, including commit message, repository name, commit date, branch, and commit URL",
+    "instructions": "Step 1: {'navigate': {'url': 'https://github.com/', 'new_tab': False}, 'interacted_element': None}\nStep 2: {'navigate': {'url': 'https://api.github.com/user', 'new_tab': False}, 'interacted_element': None}\nStep 3: {'done': {'text': '[]', 'success': False, 'files_to_display': []}, 'interacted_element': None}",
+    "output_schema": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "commit_message": {
+            "type": "string"
+          },
+          "repository": {
+            "type": "string"
+          },
+          "branch": {
+            "type": "string"
+          },
+          "committed_at": {
+            "type": "string"
+          },
+          "commit_url": {
+            "type": "string"
+          },
+          "sha": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "sample_output": [],
+    "display_hint": "table",
+    "type": "data"
+  },
+  "commit_activity_summary": {
+    "name": "commit_activity_summary",
+    "description": "Fetch the total number of commits made by the authenticated GitHub user in the past 30 days as a single summary stat",
+    "instructions": "Step 1: {'navigate': {'url': 'https://github.com/', 'new_tab': False}, 'interacted_element': None}\nStep 2: {'done': {'text': '{\"total_commits_last_30_days\": \"N/A - No authenticated user session\", \"most_active_repository\": \"N/A - No authenticated user session\", \"longest_streak_days\": \"N/A - No authenticated user session\"}', 'success': False, 'files_to_display': []}, 'interacted_element': None}",
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "total_commits_last_30_days": {
+          "type": "string"
+        },
+        "most_active_repository": {
+          "type": "string"
+        },
+        "longest_streak_days": {
+          "type": "string"
+        }
+      }
+    },
+    "sample_output": {
+      "total_commits_last_30_days": "N/A - No authenticated user session",
+      "most_active_repository": "N/A - No authenticated user session",
+      "longest_streak_days": "N/A - No authenticated user session"
+    },
+    "display_hint": "value",
+    "type": "data"
   }
 }
