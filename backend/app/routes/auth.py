@@ -1,10 +1,10 @@
 import logging
-import uuid
 
 from fastapi import APIRouter, HTTPException
 
 import app.browser as browser_session
 from app.models import StartAuthRequest
+from app.names import generate_name
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -14,7 +14,7 @@ router = APIRouter()
 async def start_auth(req: StartAuthRequest):
     """Spawn a headed browser and navigate to the target URL for manual login."""
     try:
-        profile_id = str(uuid.uuid4())
+        profile_id = generate_name()
         result = await browser_session.start_session(req.url, profile_id)
         return result
     except Exception as e:

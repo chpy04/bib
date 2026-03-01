@@ -18,6 +18,7 @@ export function SetupPanel({ onComplete }: SetupPanelProps) {
   const [statusMsg, setStatusMsg] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [profileId, setProfileId] = useState("");
 
   async function handleAuth(e: React.FormEvent) {
     e.preventDefault();
@@ -26,7 +27,8 @@ export function SetupPanel({ onComplete }: SetupPanelProps) {
     setLoading(true);
     setStatusMsg("Opening browser…");
     try {
-      await api.startAuth(url.trim());
+      const { profile_id } = await api.startAuth(url.trim());
+      setProfileId(profile_id);
       setStep("prompt");
       setStatusMsg("");
     } catch (err) {
@@ -52,6 +54,7 @@ export function SetupPanel({ onComplete }: SetupPanelProps) {
       const { profile_id, verified_tasks: tasks } = await api.verifyTasks(
         url.trim(),
         plan.tasks,
+        profileId,
       );
 
       if (tasks.length === 0) {

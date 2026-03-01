@@ -55,8 +55,9 @@ export async function planTasks(
 export async function verifyTasks(
   url: string,
   tasks: Task[],
+  profile_id: string,
 ): Promise<{ profile_id: string; verified_tasks: VerifiedTask[] }> {
-  return _post("/verify", { url, tasks });
+  return _post("/verify", { url, tasks, profile_id });
 }
 
 export async function generateUI(
