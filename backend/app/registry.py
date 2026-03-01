@@ -81,6 +81,43 @@ def list_instructions(profile_id: str) -> list[dict]:
     return list(load_registry(profile_id).values())
 
 
+def _cache_path(profile_id: str):
+    return settings.profiles_dir / profile_id / "cache.json"
+
+
+def _load_cache(profile_id: str) -> dict:
+    path = _cache_path(profile_id)
+    if not path.exists():
+        return {}
+    with path.open("r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _save_cache(profile_id: str, cache: dict) -> None:
+    path = _cache_path(profile_id)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(cache, indent=2, default=str))
+
+
+def save_cached_data(profile_id: str, instruction_name: str, data: object) -> None:
+    """Persist scraped data into cache.json keyed by instruction name."""
+    cache = _load_cache(profile_id)
+    cache[instruction_name] = {
+        "data": data,
+        "cached_at": datetime.now(timezone.utc).isoformat(),
+    }
+    _save_cache(profile_id, cache)
+
+
+def get_cached_data(profile_id: str, instruction_name: str) -> dict | None:
+    """Return {data, cached_at} if cache exists, else None."""
+    cache = _load_cache(profile_id)
+    entry = cache.get(instruction_name)
+    if entry is None:
+        return None
+    return {"data": entry["data"], "cached_at": entry.get("cached_at")}
+
+
 # ── Dashboard persistence ────────────────────────────────────────────────────
 
 
