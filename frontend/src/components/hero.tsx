@@ -15,38 +15,40 @@ export function Hero() {
 
       <div className="pointer-events-none absolute top-1/3 left-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/5 blur-[120px]" />
 
-      <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center text-center">
-        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-4 py-1.5">
-          <div className="h-1.5 w-1.5 rounded-full bg-accent" />
-          <span className="text-xs font-medium text-muted-foreground">AI-Powered Web Scraping</span>
+      <div className="relative z-10 mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-12 lg:grid-cols-2">
+        <div className="flex flex-col items-start text-left">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-4 py-1.5">
+            <div className="h-1.5 w-1.5 rounded-full bg-accent" />
+            <span className="text-xs font-medium text-muted-foreground">AI-Powered Web Scraping</span>
+          </div>
+
+          <h1 className="text-balance text-5xl font-bold leading-[1.1] tracking-tight text-foreground md:text-7xl">
+            Your browser,
+            <br />
+            <span className="text-accent">your dashboard.</span>
+          </h1>
+
+          <p className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground md:text-xl">
+            Describe what you want to see from any website. BiB sends an AI agent to scrape the data and renders a clean,
+            custom dashboard — no code required.
+          </p>
+
+          <div className="mt-10 flex flex-col items-start gap-4 sm:flex-row">
+            <Link to="/app">
+              <Button size="lg" variant="accent">
+                Get Started
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+            <Link to="/how-it-works">
+              <Button size="lg" variant="outline" className="border-border text-foreground hover:bg-secondary">
+                See How It Works
+              </Button>
+            </Link>
+          </div>
         </div>
 
-        <h1 className="text-balance text-5xl font-bold leading-[1.1] tracking-tight text-foreground md:text-7xl">
-          Your browser,
-          <br />
-          <span className="text-accent">your dashboard.</span>
-        </h1>
-
-        <p className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground md:text-xl">
-          Describe what you want to see from any website. BiB sends an AI agent to scrape the data and renders a clean,
-          custom dashboard — no code required.
-        </p>
-
-        <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row">
-          <Link to="/app">
-            <Button size="lg" variant="accent">
-              Get Started
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
-          <Link to="/how-it-works">
-            <Button size="lg" variant="outline" className="border-border text-foreground hover:bg-secondary">
-              See How It Works
-            </Button>
-          </Link>
-        </div>
-
-        <div className="mt-20 w-full max-w-2xl overflow-hidden rounded-xl border border-border bg-card">
+        <div className="w-full overflow-hidden rounded-xl border border-border bg-card">
           <div className="flex items-center gap-2 border-b border-border px-4 py-3">
             <div className="h-3 w-3 rounded-full bg-destructive/60" />
             <div className="h-3 w-3 rounded-full bg-chart-4/60" />

@@ -22,3 +22,4 @@ backend/profiles/*/
 # Auth
 auth.json
 *.bak
+backend/browseruse_agent_data/
