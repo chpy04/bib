@@ -39,7 +39,7 @@ export function Hero() {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
-          <Link to="/#how-it-works">
+          <Link to="/how-it-works">
             <Button size="lg" variant="outline" className="border-border text-foreground hover:bg-secondary">
               See How It Works
             </Button>

@@ -20,7 +20,7 @@ export function Navbar() {
           <Link to="/#features" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
             Features
           </Link>
-          <Link to="/#how-it-works" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+          <Link to="/how-it-works" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
             How It Works
           </Link>
           <Link to="/app">
@@ -50,7 +50,7 @@ export function Navbar() {
               Features
             </Link>
             <Link
-              to="/#how-it-works"
+              to="/how-it-works"
               className="text-sm text-muted-foreground transition-colors hover:text-foreground"
               onClick={() => setMobileOpen(false)}
             >
