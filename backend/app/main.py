@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.profiles import router as profiles_router
 from app.routes.ws import router as ws_router
@@ -12,6 +12,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    print(f"[server] {request.method} {request.url.path}")
+    response = await call_next(request)
+    print(f"[server] {request.method} {request.url.path} -> {response.status_code}")
+    return response
+
 
 app.include_router(profiles_router, prefix="/api")
 app.include_router(ws_router)

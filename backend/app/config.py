@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 class Settings(BaseSettings):
-    minimax_api_key: str = ""
+    dedalus_api_key: str = ""
     browser_use_api_key: str = ""
     openai_api_key: str = ""
     profiles_dir: Path = Path(__file__).parent.parent / "profiles"

@@ -26,6 +26,11 @@ class CreateProfileRequest(BaseModel):
     request: str  # Natural language description of what user wants
 
 
+class RunRequest(BaseModel):
+    url: str = ""
+    prompt: str
+
+
 class WSMessage(BaseModel):
     type: str
     data: dict[str, Any] | None = None
