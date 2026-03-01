@@ -5,7 +5,7 @@ import logging
 from typing import Any
 
 from browser_use import Agent, Browser
-from browser_use.llm import ChatAnthropic
+from browser_use.llm import ChatAnthropic, ChatBrowserUse
 
 from app.config import settings
 from app.models import Task, VerifiedTask
@@ -15,7 +15,15 @@ logger = logging.getLogger(__name__)
 MAX_CONCURRENT = 3
 
 
-def _make_llm() -> ChatAnthropic:
+def _make_browser_use_llm() -> ChatBrowserUse:
+    """Fast LLM for browser navigation (verify step)."""
+    return ChatBrowserUse(
+        api_key=settings.browser_use_api_key,
+    )
+
+
+def _make_anthropic_llm() -> ChatAnthropic:
+    """Stronger LLM for structured JSON output (data fetch step)."""
     return ChatAnthropic(
         model=settings.anthropic_model,
         api_key=settings.anthropic_api_key,
@@ -88,7 +96,7 @@ async def verify_task(task: Task, url: str) -> VerifiedTask | None:
     try:
         agent = Agent(
             task=task_prompt,
-            llm=_make_llm(),
+            llm=_make_browser_use_llm(),
             browser=browser,
             max_failures=3,
         )
@@ -143,11 +151,11 @@ async def verify_tasks(tasks: list[Task], url: str) -> list[VerifiedTask]:
     return verified
 
 
-async def run_instruction(instruction_name: str) -> dict[str, Any]:
+async def run_instruction(instruction_name: str, profile_id: str) -> dict[str, Any]:
     """Execute a named instruction from the registry."""
     from app.registry import get_instruction
 
-    instruction = get_instruction(instruction_name)
+    instruction = get_instruction(profile_id, instruction_name)
     if instruction is None:
         return {
             "instruction_name": instruction_name,
@@ -168,7 +176,7 @@ async def run_instruction(instruction_name: str) -> dict[str, Any]:
     try:
         agent = Agent(
             task=task_prompt,
-            llm=_make_llm(),
+            llm=_make_anthropic_llm(),
             browser=browser,
             max_failures=3,
         )

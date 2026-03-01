@@ -8,15 +8,29 @@ import type { VerifiedTask } from '@/types'
 export function AppPage() {
   const [componentCode, setComponentCode] = useState<string | null>(null)
   const [verifiedTasks, setVerifiedTasks] = useState<VerifiedTask[]>([])
+  const [layoutHint, setLayoutHint] = useState('')
+  const [chatHistory, setChatHistory] = useState<string[]>([])
+  const [profileId, setProfileId] = useState<string | null>(null)
 
-  function handleSetupComplete(code: string, tasks: VerifiedTask[]) {
+  function handleSetupComplete(code: string, tasks: VerifiedTask[], hint: string, pid: string) {
     setComponentCode(code)
     setVerifiedTasks(tasks)
+    setLayoutHint(hint)
+    setChatHistory([])
+    setProfileId(pid)
   }
 
   function handleReset() {
     setComponentCode(null)
     setVerifiedTasks([])
+    setLayoutHint('')
+    setChatHistory([])
+    setProfileId(null)
+  }
+
+  function handleCodeUpdate(newCode: string, refinementMessage: string) {
+    setComponentCode(newCode)
+    setChatHistory((prev) => [...prev, refinementMessage])
   }
 
   const showResult = componentCode !== null
@@ -67,13 +81,20 @@ export function AppPage() {
               </p>
             </div>
             <SetupPanel
-              onComplete={(code, tasks) => handleSetupComplete(code, tasks)}
+              onComplete={(code, tasks, hint, pid) => handleSetupComplete(code, tasks, hint, pid)}
             />
           </>
         )}
 
         {showResult && componentCode && (
-          <GeneratedUI componentCode={componentCode} verifiedTasks={verifiedTasks} />
+          <GeneratedUI
+            componentCode={componentCode}
+            verifiedTasks={verifiedTasks}
+            layoutHint={layoutHint}
+            chatHistory={chatHistory}
+            onCodeUpdate={handleCodeUpdate}
+            profileId={profileId!}
+          />
         )}
       </main>
     </div>

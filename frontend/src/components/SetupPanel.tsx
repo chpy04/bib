@@ -3,7 +3,7 @@ import * as api from '@/lib/api'
 import type { Phase, TaskPlan, VerifiedTask } from '@/types'
 
 interface SetupPanelProps {
-  onComplete: (code: string, verifiedTasks: VerifiedTask[], layoutHint: string) => void
+  onComplete: (code: string, verifiedTasks: VerifiedTask[], layoutHint: string, profileId: string) => void
 }
 
 const PHASE_LABELS: Record<string, string> = {
@@ -54,7 +54,9 @@ export function SetupPanel({ onComplete }: SetupPanelProps) {
       // Step 2: Verify
       setPhase('verifying')
       setStatusMsg(`Verifying ${plan.tasks.length} task(s) with browser agent…`)
-      const verifiedTasks: VerifiedTask[] = await api.verifyTasks(url.trim(), plan.tasks)
+      const verifyResult = await api.verifyTasks(url.trim(), plan.tasks)
+      const verifiedTasks = verifyResult.verified_tasks
+      const profileId = verifyResult.profile_id
 
       if (verifiedTasks.length === 0) {
         throw new Error('No tasks could be verified. Try a more specific prompt.')
@@ -65,7 +67,7 @@ export function SetupPanel({ onComplete }: SetupPanelProps) {
       setStatusMsg(PHASE_LABELS.generating)
       const { component_code } = await api.generateUI(verifiedTasks, plan.layout_hint)
 
-      onComplete(component_code, verifiedTasks, plan.layout_hint)
+      onComplete(component_code, verifiedTasks, plan.layout_hint, profileId)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
       setPhase('prompt')

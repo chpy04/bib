@@ -59,6 +59,14 @@ class GenerateUIResponse(BaseModel):
     component_code: str
 
 
+class RefineUIRequest(BaseModel):
+    verified_tasks: list[VerifiedTask]
+    layout_hint: str
+    current_code: str
+    chat_history: list[str]   # all previous user messages (original prompt + refinements)
+    refinement: str           # the new refinement request
+
+
 # ── Runtime data / action ─────────────────────────────────────────────────────
 
 class DataResponse(BaseModel):
@@ -72,3 +80,8 @@ class ActionResponse(BaseModel):
     success: bool
     data: Optional[dict[str, Any]] = None
     error: Optional[str] = None
+
+
+class VerifyTasksResponse(BaseModel):
+    profile_id: str
+    verified_tasks: list[VerifiedTask]
