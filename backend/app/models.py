@@ -7,6 +7,12 @@ class CreateProfileRequest(BaseModel):
     request: str  # Natural language description of what user wants
 
 
+class RunRequest(BaseModel):
+    prompt: str
+    url: str = ""
+    session_id: str | None = None
+
+
 class WSMessage(BaseModel):
     type: str
     data: dict[str, Any] | None = None

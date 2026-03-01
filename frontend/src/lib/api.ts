@@ -1,7 +1,8 @@
 import type { Profile } from '../types';
 
 const API_BASE = '/api';
-const WS_BASE = `ws://${window.location.hostname}:8000`;
+const WS_PROTO = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+const WS_BASE = `${WS_PROTO}//${window.location.host}`;
 
 export async function fetchProfiles(): Promise<Profile[]> {
   const res = await fetch(`${API_BASE}/profiles`);

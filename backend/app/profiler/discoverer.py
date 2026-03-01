@@ -37,13 +37,19 @@ def _make_llm():
     )
 
 
+# Keys from the prompt schema that the LLM sometimes erroneously puts inside suggested_fields
+_SUGGESTED_FIELDS_META_KEYS = frozenset({
+    "extracted_data_json", "agent_prompt_used", "suggested_fields", "is_list",
+})
+
+
 def _parse_discovery_result(raw: str) -> DiscoveryResult | None:
     """
     Parse the agent's final_result() string into a DiscoveryResult.
 
     The agent is prompted to return a JSON object. We strip markdown fences,
-    parse the JSON, and validate it into DiscoveryResult manually.
-    Returns None if parsing or validation fails.
+    attempt to parse the JSON, then clean up suggested_fields defensively.
+    Returns None if parsing or construction fails unrecoverably.
     """
     if not raw:
         return None
@@ -57,10 +63,25 @@ def _parse_discovery_result(raw: str) -> DiscoveryResult | None:
         .strip()
     )
 
+    # Primary parse attempt
+    data: dict | None = None
     try:
         data = json.loads(cleaned)
     except json.JSONDecodeError:
-        logger.warning("Could not parse discovery result as JSON: %s", cleaned[:200])
+        # The output may be truncated (agent hit a character limit on done()).
+        # Try progressively patching the truncated string by closing open braces.
+        for closing in ("}", "}}", "}}}", "}}}}", "}", "]}", "]}}", "]}}}"):
+            try:
+                data = json.loads(cleaned + closing)
+                logger.warning(
+                    "Discovery result JSON was truncated; recovered by appending %r", closing
+                )
+                break
+            except json.JSONDecodeError:
+                continue
+
+    if not isinstance(data, dict):
+        logger.warning("Could not parse discovery result as JSON: %s", cleaned[:300])
         return None
 
     # Validate required fields are present
@@ -70,11 +91,26 @@ def _parse_discovery_result(raw: str) -> DiscoveryResult | None:
         logger.warning("Discovery result missing fields: %s", missing)
         return None
 
+    # Clean suggested_fields: keep only flat string-typed entries that aren't meta-keys.
+    # The LLM sometimes puts the prompt's own top-level keys in here, or nests objects.
+    raw_fields = data.get("suggested_fields") or {}
+    suggested_fields: dict[str, str] = {
+        k: v
+        for k, v in raw_fields.items()
+        if k not in _SUGGESTED_FIELDS_META_KEYS and isinstance(v, str)
+    }
+    if not suggested_fields:
+        logger.warning(
+            "suggested_fields was empty or all invalid after filtering (raw keys: %s)",
+            list(raw_fields.keys())[:10],
+        )
+        # Don't abort — an empty schema is still useful for generating the instruction
+
     try:
         return DiscoveryResult(
             extracted_data_json=str(data["extracted_data_json"]),
             agent_prompt_used=str(data["agent_prompt_used"]),
-            suggested_fields=dict(data["suggested_fields"]),
+            suggested_fields=suggested_fields,
             is_list=bool(data["is_list"]),
         )
     except Exception as e:
