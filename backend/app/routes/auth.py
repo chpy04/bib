@@ -1,4 +1,5 @@
 import logging
+import uuid
 
 from fastapi import APIRouter, HTTPException
 
@@ -13,7 +14,8 @@ router = APIRouter()
 async def start_auth(req: StartAuthRequest):
     """Spawn a headed browser and navigate to the target URL for manual login."""
     try:
-        result = await browser_session.start_session(req.url)
+        profile_id = str(uuid.uuid4())
+        result = await browser_session.start_session(req.url, profile_id)
         return result
     except Exception as e:
         logger.exception("Failed to open browser")
@@ -33,4 +35,5 @@ async def auth_status():
     return {
         "active": browser_session.is_active(),
         "url": browser_session.session_url(),
+        "profile_id": browser_session.get_profile_id(),
     }

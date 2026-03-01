@@ -36,6 +36,7 @@ class TaskPlan(BaseModel):
 class VerifyTasksRequest(BaseModel):
     url: str
     tasks: list[Task]
+    profile_id: str
 
 
 class VerifiedTask(BaseModel):
