@@ -29,7 +29,7 @@ class Task(BaseModel):
 
 class TaskPlan(BaseModel):
     tasks: list[Task]
-    layout_hint: str
+    layout_hint: str = ""
 
 
 # ── Task verification ─────────────────────────────────────────────────────────

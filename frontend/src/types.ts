@@ -10,7 +10,7 @@ export interface Task {
 
 export interface TaskPlan {
   tasks: Task[];
-  layout_hint: string;
+  layout_hint?: string;
 }
 
 export interface VerifiedTask extends Task {

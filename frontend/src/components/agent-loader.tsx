@@ -1,25 +1,10 @@
-import { useEffect, useState } from 'react'
+interface AgentLoaderProps {
+  phases: string[]
+  currentPhase: number
+}
 
-const phases = [
-  'Initializing agent...',
-  'Connecting to browser...',
-  'Profiling site structure...',
-  'Mapping navigation flow...',
-  'Building scrape plan...',
-  'Executing scrape plan...',
-  'Extracting structured data...',
-  'Assembling dashboard...',
-]
-
-export function AgentLoader() {
-  const [currentPhase, setCurrentPhase] = useState(0)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentPhase((prev) => (prev + 1) % phases.length)
-    }, 2200)
-    return () => clearInterval(interval)
-  }, [])
+export function AgentLoader({ phases, currentPhase }: AgentLoaderProps) {
+  const clamped = Math.min(currentPhase, phases.length - 1)
 
   return (
     <div className="flex flex-col items-center justify-center py-20">
@@ -62,10 +47,10 @@ export function AgentLoader() {
 
       <div className="relative h-6 overflow-hidden">
         <p
-          key={currentPhase}
+          key={clamped}
           className="animate-[fadeSlideIn_0.5s_ease-out] font-mono text-sm text-accent"
         >
-          {phases[currentPhase]}
+          {phases[clamped]}
         </p>
       </div>
 
@@ -74,7 +59,7 @@ export function AgentLoader() {
           <div
             key={i}
             className={`h-1 rounded-full transition-all duration-500 ${
-              i <= currentPhase ? 'w-6 bg-accent' : 'w-1 bg-border'
+              i <= clamped ? 'w-6 bg-accent' : 'w-1 bg-border'
             }`}
           />
         ))}
@@ -82,15 +67,15 @@ export function AgentLoader() {
 
       <div className="mt-10 w-full max-w-md rounded-lg border border-border bg-card p-4 font-mono text-xs">
         <div className="flex flex-col gap-1.5">
-          {phases.slice(0, currentPhase + 1).map((phase, i) => (
+          {phases.slice(0, clamped + 1).map((phase, i) => (
             <div
               key={i}
               className={`flex items-center gap-2 ${
-                i === currentPhase ? 'text-accent' : 'text-muted-foreground'
+                i === clamped ? 'text-accent' : 'text-muted-foreground'
               }`}
             >
-              <span className={i < currentPhase ? 'text-accent' : 'text-muted-foreground'}>
-                {i < currentPhase ? '[done]' : '[....]'}
+              <span className={i < clamped ? 'text-accent' : 'text-muted-foreground'}>
+                {i < clamped ? '[done]' : '[....]'}
               </span>
               <span>{phase}</span>
             </div>

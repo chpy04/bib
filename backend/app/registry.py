@@ -88,10 +88,19 @@ def _dashboard_path(profile_id: str):
     return settings.profiles_dir / profile_id / "dashboard.json"
 
 
+def _generated_ui_path(profile_id: str):
+    return settings.profiles_dir / profile_id / "generated-ui.jsx"
+
+
 def save_dashboard(profile_id: str, data: dict) -> None:
-    path = _dashboard_path(profile_id)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, indent=2, default=str))
+    dir_path = settings.profiles_dir / profile_id
+    dir_path.mkdir(parents=True, exist_ok=True)
+
+    component_code = data.pop("component_code", None)
+    if component_code is not None:
+        _generated_ui_path(profile_id).write_text(component_code)
+
+    _dashboard_path(profile_id).write_text(json.dumps(data, indent=2, default=str))
 
 
 def load_dashboard(profile_id: str) -> dict | None:
@@ -99,7 +108,13 @@ def load_dashboard(profile_id: str) -> dict | None:
     if not path.exists():
         return None
     with path.open("r", encoding="utf-8") as f:
-        return json.load(f)
+        data = json.load(f)
+
+    ui_path = _generated_ui_path(profile_id)
+    if ui_path.exists():
+        data["component_code"] = ui_path.read_text()
+
+    return data
 
 
 def list_dashboards() -> list[dict]:
