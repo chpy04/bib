@@ -19,6 +19,7 @@ from app.models import (
 )
 from app.registry import (
     load_dashboard,
+    save_cached_data,
     save_dashboard,
     save_instruction,
     save_profile_meta,
@@ -73,6 +74,8 @@ async def verify(req: VerifyTasksRequest) -> VerifyTasksResponse:
                 "type": task.type,
             },
         )
+        if task.type == "data" and task.sample_output is not None:
+            save_cached_data(profile_id, task.id, task.sample_output)
 
     return VerifyTasksResponse(profile_id=profile_id, verified_tasks=verified)
 

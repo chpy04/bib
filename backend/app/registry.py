@@ -81,6 +81,26 @@ def list_instructions(profile_id: str) -> list[dict]:
     return list(load_registry(profile_id).values())
 
 
+def save_cached_data(profile_id: str, instruction_name: str, data: object) -> None:
+    """Persist scraped data into the instruction entry as cached_data."""
+    registry = load_registry(profile_id)
+    entry = registry.get(instruction_name)
+    if entry is None:
+        logger.warning("save_cached_data: instruction %s not found", instruction_name)
+        return
+    entry["cached_data"] = data
+    entry["cached_at"] = datetime.now(timezone.utc).isoformat()
+    save_registry(profile_id, registry)
+
+
+def get_cached_data(profile_id: str, instruction_name: str) -> dict | None:
+    """Return {data, cached_at} if cache exists, else None."""
+    entry = get_instruction(profile_id, instruction_name)
+    if entry is None or "cached_data" not in entry:
+        return None
+    return {"data": entry["cached_data"], "cached_at": entry.get("cached_at")}
+
+
 # ── Dashboard persistence ────────────────────────────────────────────────────
 
 

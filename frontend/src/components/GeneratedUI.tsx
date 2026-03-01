@@ -25,6 +25,7 @@ export function GeneratedUI({
   const [shellReady, setShellReady] = useState(false);
   const [iframeHeight, setIframeHeight] = useState(400);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
   const [refinement, setRefinement] = useState("");
   const [refining, setRefining] = useState(false);
   const [refineError, setRefineError] = useState<string | null>(null);
@@ -79,11 +80,11 @@ export function GeneratedUI({
   useEffect(() => {
     if (!shellReady || !componentCode) return;
 
+    // Render with cached data, then load from cache (no agent re-scrape)
     const initialData = buildDataMap(verifiedTasks, (t) => t.sample_output);
     postToIframe({ type: "RENDER", code: componentCode, data: initialData });
 
-    // Fetch fresh data in background
-    fetchAllData();
+    fetchAllData(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shellReady, componentCode]);
 
@@ -100,28 +101,37 @@ export function GeneratedUI({
     );
   }
 
-  async function fetchAllData() {
+  async function fetchAllData(refresh: boolean) {
     setFetchError(null);
+    if (refresh) setRefreshing(true);
+
     const dataTasks = verifiedTasks.filter((t) => t.type === "data");
-    if (dataTasks.length === 0) return;
+    if (dataTasks.length === 0) {
+      setRefreshing(false);
+      return;
+    }
 
-    const results = await Promise.allSettled(
-      dataTasks.map((t) => api.getData(t.id, profileId)),
-    );
+    try {
+      const results = await Promise.allSettled(
+        dataTasks.map((t) => api.getData(t.id, profileId, refresh)),
+      );
 
-    const freshData: Record<string, unknown> = {};
-    results.forEach((result, i) => {
-      const task = dataTasks[i];
-      if (!task) return;
-      if (result.status === "fulfilled" && result.value?.success) {
-        freshData[task.id] = result.value.data;
-      } else if (result.status === "rejected") {
-        setFetchError(`Failed to fetch ${task.id}: ${result.reason?.message}`);
+      const freshData: Record<string, unknown> = {};
+      results.forEach((result, i) => {
+        const task = dataTasks[i];
+        if (!task) return;
+        if (result.status === "fulfilled" && result.value?.success) {
+          freshData[task.id] = result.value.data;
+        } else if (result.status === "rejected") {
+          setFetchError(`Failed to fetch ${task.id}: ${result.reason?.message}`);
+        }
+      });
+
+      if (Object.keys(freshData).length > 0) {
+        postToIframe({ type: "DATA_UPDATE", data: freshData });
       }
-    });
-
-    if (Object.keys(freshData).length > 0) {
-      postToIframe({ type: "DATA_UPDATE", data: freshData });
+    } finally {
+      setRefreshing(false);
     }
   }
 
@@ -168,6 +178,16 @@ export function GeneratedUI({
 
   return (
     <div className="w-full">
+      <div className="mb-2 flex justify-end">
+        <button
+          type="button"
+          onClick={() => fetchAllData(true)}
+          disabled={refreshing}
+          className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-50 disabled:pointer-events-none"
+        >
+          {refreshing ? "Refreshing..." : "Refresh"}
+        </button>
+      </div>
       <iframe
         ref={iframeRef}
         title="Generated dashboard"

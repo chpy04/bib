@@ -4,7 +4,7 @@ import logging
 from fastapi import APIRouter, HTTPException, Query
 
 from app.agent import run_instruction
-from app.registry import get_instruction, list_dashboards, list_instructions, load_dashboard
+from app.registry import get_cached_data, get_instruction, list_dashboards, list_instructions, load_dashboard, save_cached_data
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -33,13 +33,28 @@ async def instructions(profile_id: str = Query(...)):
 
 
 @router.get("/data/{instruction_name}")
-async def get_data(instruction_name: str, profile_id: str = Query(...)):
-    """Execute a named data instruction and return the result."""
+async def get_data(
+    instruction_name: str,
+    profile_id: str = Query(...),
+    refresh: bool = Query(False),
+):
+    """Return cached data for an instruction, or re-scrape when refresh=true."""
     if get_instruction(profile_id, instruction_name) is None:
         raise HTTPException(
             status_code=404,
             detail=f"Instruction '{instruction_name}' not found",
         )
+
+    # Serve from cache unless the caller explicitly asks for a refresh
+    if not refresh:
+        cached = get_cached_data(profile_id, instruction_name)
+        if cached is not None:
+            return {
+                "instruction_name": instruction_name,
+                "data": cached["data"],
+                "cached_at": cached["cached_at"],
+                "success": True,
+            }
 
     result = await run_instruction(instruction_name, profile_id)
     if not result["success"]:
@@ -47,6 +62,9 @@ async def get_data(instruction_name: str, profile_id: str = Query(...)):
             status_code=502,
             detail=result.get("error", "Instruction execution failed"),
         )
+
+    # Cache the fresh result
+    save_cached_data(profile_id, instruction_name, result["data"])
 
     return result
 
@@ -83,5 +101,6 @@ async def execute_action(instruction_name: str, profile_id: str = Query(...)):
         for instr, res in zip(data_instructions, results):
             if not isinstance(res, Exception) and res.get("success"):
                 fresh_data[instr["name"]] = res["data"]
+                save_cached_data(profile_id, instr["name"], res["data"])
 
     return {"success": True, "data": fresh_data}

@@ -97,10 +97,13 @@ export async function refineUI(
 export async function getData(
   name: string,
   profileId: string,
+  refresh = false,
 ): Promise<{ instruction_name: string; data: unknown; success: boolean }> {
-  return _get(
-    `/data/${encodeURIComponent(name)}?profile_id=${encodeURIComponent(profileId)}`,
-  );
+  const params = new URLSearchParams({
+    profile_id: profileId,
+    ...(refresh ? { refresh: "true" } : {}),
+  });
+  return _get(`/data/${encodeURIComponent(name)}?${params}`);
 }
 
 export async function executeAction(
